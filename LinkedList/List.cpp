@@ -57,7 +57,7 @@ void List<T>::insertAt(const T& obj, int pos) throw(std::runtime_error) {
 }
 
 template <typename T>
-void List<T>::remove(int pos) throw (std::runtime_error) {
+void List<T>::removeAt(int pos) throw (std::runtime_error) {
     if(pos > 0 || pos < (getLength() + 1)) {
         throw(std::runtime_error("Invalid deletion index for linked list. Method: 'remove'.\n"));
     }
@@ -177,11 +177,11 @@ void List<T>::traverse(void (*eff)(const T& val)) {
     if(!isEmpty()) headPtr->traverse(eff);
 }
 
-template <typename T>
-template <typename R>
-R List<T>::fold(const R& (*func)(const T& curVal, const R& accum), const R& initVal) {
-    return(isEmpty() ? initVal : headPtr->fold(func, initVal));
-}
+// template <typename T>
+// template <typename R>
+// R List<T>::fold(const R& (*func)(const T& curVal, const R& accum), const R& initVal) {
+//     return(isEmpty() ? initVal : headPtr->fold(func, initVal));
+// }
 
 template <typename T>
 List<T> reverse(const List<T>& l) {

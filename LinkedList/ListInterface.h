@@ -23,7 +23,9 @@ class ListInterface
 
      virtual void insertAt(const T& entry, int position) throw (std::runtime_error) = 0;
 
-     virtual void remove(int position) throw (std::runtime_error) = 0;
+     virtual void removeAt(int position) throw (std::runtime_error) = 0;
+
+     virtual bool removeObj(const T& obj);
 
      virtual void clear() = 0;
 
@@ -33,8 +35,8 @@ class ListInterface
 
      virtual void traverse(void (*eff)(const T& val)) = 0;
 
-     template <typename R>
-     R fold(R (*func)(const T& curVal, const R& accum), const R& initVal) const;
+     // template <typename R>
+     // R fold(R (*func)(const T& curVal, const R& accum), const R& initVal) const;
 
 };
 

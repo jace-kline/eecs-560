@@ -2,13 +2,13 @@
 #define HASH_TABLE_H
 
 #include "./HashTableInterface.h"
-#include "./ListInterface.h"
+#include "./List.h"
 
 template <typename T, typename K>
 class HashTable : HashTableInterface {
     private:
         int buckets;
-        ListInterface<T>* array;
+        List<T>* array;
         K (*objToKey)(const T& obj);
         int (*hashFunc)(const K& key, int s);
 
@@ -21,15 +21,15 @@ class HashTable : HashTableInterface {
         HashTable(const HashTable<T,K>& other);
         ~HashTable();
 
-        bool contains(const T& val);
+        bool containsObj(const T& val) const;
 
         bool insert(const T& val);
 
         bool remove(const T& val);
 
-        int numBuckets();
+        int numBuckets() const;
 
-        int numElements();
+        int numElements() const;
 };
 
 #endif

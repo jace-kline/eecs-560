@@ -21,7 +21,7 @@ class List : ListInterface<T> {
         void insertEnd(const T& obj);
         T getEnd() throw(std::runtime_error);
         void insertAt(const T& obj, int pos) throw(std::runtime_error);
-        void remove(int pos) throw (std::runtime_error);
+        void removeAt(int pos) throw (std::runtime_error);
         bool removeObj(const T& obj); // removes last instance of matching item in list
         void removeDuplicates();
         void clear();
@@ -33,8 +33,8 @@ class List : ListInterface<T> {
         List<T>& operator=(const List<T>& other);
         void traverse(void (*eff)(const T& val));
 
-        template <typename R>
-        R fold(R (*func)(const T& curVal, const R& accum), const R& initVal) const;
+        // template <typename R>
+        // R fold(R (*func)(const T& curVal, const R& accum), const R& initVal) const;
 };
 
 template <typename T>
