@@ -8,12 +8,14 @@ template <typename T, typename K>
 class HashTable : HashTableInterface {
     private:
         int buckets;
+        int elements;
         List<T>* array;
         K (*objToKey)(const T& obj);
         int (*hashFunc)(const K& key, int s);
 
     protected:
         int hashFromObj(const T& obj);
+        int hashFromKey(const K& key);
 
     public:
 
@@ -30,6 +32,18 @@ class HashTable : HashTableInterface {
         int numBuckets() const;
 
         int numElements() const;
+
+        float loadFactor() const;
+
+        List<T> filter(bool (*p)(const T& obj));
+
+        void printTable(void (*printFunc)(const T& val)) const;
+
+        template <typename R>
+        R fold(R (*func)(const T& obj, R accum), R initVal) const;
+
+        template <typename R, typename V>
+        R foldWithContext(R (*func)(const V& c, const T& currentObj, R accum), const V& contextObj, R initVal) const;
 };
 
 #endif

@@ -37,6 +37,7 @@ template <typename T, typename K>
 bool HashTable<T,K>::insert(const T& val) {
     if(!containsObj(val)) {
         array[hashFromObj(val)].insertFront(val);
+        elements++;
         return true;
     }
     return false;
@@ -44,7 +45,11 @@ bool HashTable<T,K>::insert(const T& val) {
 
 template <typename T, typename K>
 bool HashTable<T,K>::remove(const T& val) {
-    return(array[hashFromObj(val)].removeObj(val));
+    if(array[hashFromObj(val)].removeObj(val)) {
+        elements--;
+        return true;
+    }
+    return false;
 }
 
 template <typename T, typename K>
@@ -54,9 +59,48 @@ int HashTable<T,K>::numBuckets() const {
 
 template <typename T, typename K>
 int HashTable<T,K>::numElements() const {
-    int sum = 0;
+    return elements;
+}
+
+template <typename T, typename K>
+float HashTable<T,K>::loadFactor() const {
+    return( elements / size );
+}
+
+template <typename T, typename K>
+List<T> filter(bool (*p)(const T& obj)) {
+    List<T> l;
     for(int i = 0; i < buckets; i++) {
-        sum = sum + array[i].getLength();
+        l.combine(array[i].filter(p));
     }
-    return sum;
+    return l;
+}
+
+template <typename T, typename K>
+void HashTable<T,K>::printTable(void (*printFunc)(const T& val)) const {
+    for(int i=0; i < buckets; i++) {
+        std::cout << i << ": -> ";
+        array[i].printTraverse(printFunc, " -> ");
+        std::cout << '\n';
+    }
+}
+
+template <typename T, typename K>
+template <typename R>
+R HashTable<T,K>::fold(R (*func)(const T& obj, R accum), R initVal) const {
+    R acc = initVal;
+    for(int i = buckets - 1; i >= 0; i--) {
+        acc = array[i].fold(func, acc);
+    }
+    return acc;
+}
+
+template <typename T, typename K>
+template <typename R, typename V>
+R HashTable<T,K>::foldWithContext(R (*func)(const V& cont, const T& obj, R accum), const V& contextObj, R initVal) const {
+    R acc = initVal;
+    for(int i = buckets - 1; i >= 0; i--) {
+        acc = array[i].foldWithContext(func, contextObj, acc);
+    }
+    return acc;
 }

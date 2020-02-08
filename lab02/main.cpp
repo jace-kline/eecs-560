@@ -1,5 +1,5 @@
 
-#define BUCKETS 11
+#define BUCKETS 7
 
 #include <fstream>
 #include <iostream>
@@ -11,6 +11,8 @@ template class Node<Player>;
 template class List<Player>;
 template class HashTable<Player,int>;
 
+static int compareVal = 0;
+
 int hash(const int& key, int size);
 int playerToKey(const Player& p);
 bool genHashTableFromFile(HashTable<Player,int>& ht, std::string filename);
@@ -21,6 +23,9 @@ int promptResponse();
 void performAction(HashTable<Player,int>& ht, int code);
 int promptIntegerInput(std::string msg);
 Player promptPlayerInput();
+bool namesClashFoldFunc(const Player& context, const Player& cur, bool accum);
+void printNamesList(const List<Player>& l);
+void printPlayer(const Player& p);
 
 int main(int argc, char** argv) {
     HashTable<Player,int> ht = HashTable<Player,int>(BUCKETS, playerToKey, hash);
@@ -93,31 +98,42 @@ void performAction(HashTable<Player,int>& ht, int code) {
     switch (code)
     {
     case 1: {
-        if(ht.insert(promptPlayerInput())) std::cout << "Player record successfully inserted.\n";
-        else std::cout << "Player record could not be added. Something went wrong.\n";
+        std::cout << "Insert a player into the table...\n";
+        Player p = promptPlayerInput();
+        if(!ht.foldWithContext<bool,Player>(namesClashFoldFunc, p, false)) {
+            if(ht.insert(p)) std::cout << "Player record successfully inserted.\n";
+        }
+        else std::cout << "Player record could not be added. Insertion record is a duplicate name.\n";
         break;
     }
     case 2: {
-
+        std::cout << "Remove a player from the table...\n";
+        Player p = promptPlayerInput();
+        if(ht.remove(p)) std::cout << "The player, " << p << ", was successfully removed.\n";
+        else std::cout << "No specified player record exists. No removal occurred.\n";
         break;
     }
     case 3: {
-
+        ht.printTable(printPlayer);
         break;
     }
     case 4: {
-
+        compareVal = promptIntegerInput("Enter a goal count:\n> ");
+        printNamesList(ht.filter(isGoalCountEqual));
         break;
     }
     case 5: {
-
+        compareVal = promptIntegerInput("Enter a goal count:\n> ");
+        printNamesList(ht.filter(isGoalCountGreater));
         break;
     }
     case 6: {
-
+        compareVal = promptIntegerInput("Enter a goal count:\n> ");
+        printNamesList(ht.filter(isGoalCountLess));
         break;
     }
     case 7: {
+        std::cout << "Ending program.\n";
         break;
     }
     default:
@@ -154,5 +170,32 @@ Player promptPlayerInput() {
     return(Player {name, goalcount});
 }
 
+bool namesClashFoldFunc(const Player& context, const Player& cur, bool accum) {
+    return(context.name == cur.name || accum);
+}
+
+bool isGoalCountEqual(const Player& p) {
+    return p.goalcount == compareVal;
+}
+
+bool isGoalCountGreater(const Player& p) {
+    return p.goalcount > compareVal;
+}
+
+bool isGoalCountLess(const Player& p) {
+    return p.goalcount < compareVal;
+}
+
+void printNamesList(const List<Player>& l) {
+    l.traversePrint(printName, ", ");
+}
+
+void printName(const Player& p) {
+    std::cout << p.name;
+}
+
+void printPlayer(const Player& p) {
+    std::cout << p;
+}
 
 

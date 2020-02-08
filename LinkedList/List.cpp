@@ -6,6 +6,11 @@ List<T>::List() {
 }
 
 template <typename T>
+List<T>::List(Node<T>* headNode) {
+    headPtr = headNode;
+}
+
+template <typename T>
 List<T>::List(const List<T>& other) {
     if(other.isEmpty()) headPtr = nullptr;
     else headPtr = new Node<T>(*other.headPtr);
@@ -177,16 +182,45 @@ void List<T>::traverse(void (*eff)(const T& val)) {
     if(!isEmpty()) headPtr->traverse(eff);
 }
 
-// template <typename T>
-// template <typename R>
-// R List<T>::fold(const R& (*func)(const T& curVal, const R& accum), const R& initVal) {
-//     return(isEmpty() ? initVal : headPtr->fold(func, initVal));
-// }
+template <typename T>
+void List<T>::traversePrint(void (*printFunc)(const T& val), std::string delimitter) const {
+    if(!isEmpty()) headPtr->traversePrint(eff, delimitter);
+}
+
+template <typename T>
+List<T> List<T>::filter(bool (*p)(const T& obj)) {
+    return List<T>(headPtr->filter(p));
+}
+
+template <typename T>
+void List<T>::combine(List<T>& other) {
+    Node<T>* cur = headPtr;
+    if(cur == nullptr) headPtr = other.headPtr;
+    else {
+        while(cur->getNext() != nullptr) {
+            cur = cur->getNext();
+        }
+        cur->setNext(other.headPtr());
+    }
+    other.headPtr = nullptr;
+}
+
+template <typename T>
+template <typename R>
+R List<T>::fold(R (*func)(const T& curVal, R accum), R initVal) const {
+    return(isEmpty() ? initVal : headPtr->fold(func, initVal));
+}
 
 template <typename T>
 List<T> reverse(const List<T>& l) {
     List<T> l2 = l;
     return(l2.reverse());
+}
+
+template <typename T>
+template <typename R, typename V>
+R List<T>::foldWithContext(R (*func)(const V& c, const T& currentObj, R accum), const V& contextObj, R initVal) const {
+    return isEmpty() : initVal ? headPtr->foldWithContext(func, contextObj, initVal);
 }
 
 template class List<int>; // instantiate with int type parameter

@@ -1,6 +1,7 @@
 #ifndef LIST_H
 #define LIST_H
 
+#include <string>
 #include "./ListInterface.h"
 #include "./Node.h"
 
@@ -11,6 +12,7 @@ class List : ListInterface<T> {
     
     public:
         List<T>();
+        List<T>(Node<T>* headNode);
         List<T>(const List<T>& other); // deep copy constructor
         ~List<T>();
         bool isEmpty() const;
@@ -32,9 +34,15 @@ class List : ListInterface<T> {
         Node<T>* nodeFromItem(const T& entry);
         List<T>& operator=(const List<T>& other);
         void traverse(void (*eff)(const T& val));
+        void traversePrint(void (*printFunc)(const T& val), std::string delimitter) const;
+        List<T> filter(bool (*p)(const T& obj));
+        void combine(List<T>& other);
 
-        // template <typename R>
-        // R fold(R (*func)(const T& curVal, const R& accum), const R& initVal) const;
+        template <typename R>
+        R fold(R (*func)(const T& curVal, R accum), R initVal) const;
+
+        template <typename R, typename V>
+        R foldWithContext(R (*func)(const V& c, const T& currentObj, R accum), const V& contextObj, R initVal) const;
 };
 
 template <typename T>

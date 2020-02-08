@@ -26,9 +26,14 @@ class Node {
         bool contains(const T& entry) const;
         Node<T>* nodeFromItem(const T& entry);
         void traverse(void (*eff)(const T& val));
+        void traversePrint(void (*printFunc)(const T& val), std::string delimitter) const;
+        Node<T>* filter(bool (*p)(const T& obj));
         
         template <typename R>
-        R fold(R (*func)(const T& curVal, const R& accum), const R& initVal) const;
+        R fold(R (*func)(const T& curVal, R accum), R initVal) const;
+
+        template <typename R, typename V>
+        R foldWithContext(R (*func)(const V& c, const T& currentObj, R accum), const V& contextObj, R initVal) const;
 };
 
 

@@ -10,9 +10,8 @@ struct Player {
 };
 
 std::ostream& operator<<(std::ostream& o, const Player& p) {
-    o << p.name << " " << p.goalcount << " ";
+    o << p.name << " " << p.goalcount;
     return o;
 }
-
 
 #endif

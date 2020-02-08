@@ -105,6 +105,23 @@ void Node<T>::traverse(void (*eff)(const T& val)) {
 }
 
 template <typename T>
+void Node<T>::traversePrint(void (*printFunc)(const T& val), std::string delimitter) const {
+    printFunc(val);
+    if(!isLeaf()) {
+        std::cout << delimitter;
+        next->traversePrint(printFunc, delimitter);
+    } else std::cout << '\n';
+}
+
+template <typename T>
+Node<T>* Node<T>::filter(bool (*p)(const T& obj)) {
+    if(p(obj)) {
+        return isLeaf() ? new Node<T>(obj, nullptr) : new Node<T>(obj, next->filter(p));
+    }
+    return isLeaf() ? nullptr : next->filter(p);
+}
+
+template <typename T>
 void deleteNode(Node<T>* n) {
     n->setNext(nullptr);
     delete n;
@@ -113,8 +130,14 @@ void deleteNode(Node<T>* n) {
 
 template <typename T>
 template <typename R>
-R Node<T>::fold(R (*func)(T curVal, R accum), R initVal) {
+R Node<T>::fold(R (*func)(const T& curVal, R accum), R initVal) {
     return func(obj, isLeaf() ? initVal : next->fold(func, initVal));
+}
+
+template <typename T>
+template <typename R, typename V>
+R foldWithContext(R (*func)(const V& c, const T& currentObj, R accum), const V& contextObj, R initVal) const {
+    return func(contextObj, currentObj, isLeaf() ? initVal : next->foldWithContext(func, contextObj, initVal));
 }
 
 template class Node<int>; // instantiate type parameter as int upon complilation
