@@ -1,12 +1,13 @@
 #ifndef LIST_H
 #define LIST_H
 
-#include <string>
-#include "./ListInterface.h"
+#include <stdexcept>
+// #include "./ListInterface.h"
 #include "./Node.h"
+#include "./Player.h"
 
 template <typename T>
-class List : ListInterface<T> {
+class List {
     private:
         Node<T>* headPtr;
     
@@ -36,16 +37,18 @@ class List : ListInterface<T> {
         void traverse(void (*eff)(const T& val));
         void traversePrint(void (*printFunc)(const T& val), std::string delimitter) const;
         List<T> filter(bool (*p)(const T& obj));
-        void combine(List<T>& other);
+        List<T>& combine(const List<T>& other);
 
         template <typename R>
         R fold(R (*func)(const T& curVal, R accum), R initVal) const;
 
-        template <typename R, typename V>
-        R foldWithContext(R (*func)(const V& c, const T& currentObj, R accum), const V& contextObj, R initVal) const;
+        // template <typename R, typename V>
+        // R foldWithContext(R (*func)(const V& c, const T& currentObj, R accum), const V& contextObj, R initVal) const;
 };
 
 template <typename T>
 List<T> reverse(const List<T>& l); // copied reverse function -> don't mutate original list
+
+// #include "./List.cpp"
 
 #endif

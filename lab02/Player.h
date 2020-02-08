@@ -9,9 +9,8 @@ struct Player {
     int goalcount;
 };
 
-std::ostream& operator<<(std::ostream& o, const Player& p) {
-    o << p.name << " " << p.goalcount;
-    return o;
-}
+std::ostream& operator<<(std::ostream& o, const Player& p);
+
+bool operator==(const Player& p1, const Player& p2);
 
 #endif

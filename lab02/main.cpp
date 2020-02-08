@@ -7,11 +7,12 @@
 #include "./Player.h"
 #include "./HashTable.h"
 
-template class Node<Player>;
-template class List<Player>;
-template class HashTable<Player,int>;
+// template class Node<Player>;
+// template class List<Player>;
+// template class HashTable<Player,int>;
 
 static int compareVal = 0;
+static Player contextPlayer;
 
 int hash(const int& key, int size);
 int playerToKey(const Player& p);
@@ -23,9 +24,13 @@ int promptResponse();
 void performAction(HashTable<Player,int>& ht, int code);
 int promptIntegerInput(std::string msg);
 Player promptPlayerInput();
-bool namesClashFoldFunc(const Player& context, const Player& cur, bool accum);
+bool namesClashFoldFunc(const Player& cur, bool accum);
 void printNamesList(const List<Player>& l);
 void printPlayer(const Player& p);
+void printName(const Player& p);
+bool isGoalCountEqual(const Player& p);
+bool isGoalCountGreater(const Player& p);
+bool isGoalCountLess(const Player& p);
 
 int main(int argc, char** argv) {
     HashTable<Player,int> ht = HashTable<Player,int>(BUCKETS, playerToKey, hash);
@@ -99,9 +104,9 @@ void performAction(HashTable<Player,int>& ht, int code) {
     {
     case 1: {
         std::cout << "Insert a player into the table...\n";
-        Player p = promptPlayerInput();
-        if(!ht.foldWithContext<bool,Player>(namesClashFoldFunc, p, false)) {
-            if(ht.insert(p)) std::cout << "Player record successfully inserted.\n";
+        contextPlayer = promptPlayerInput();
+        if(!ht.fold<bool>(namesClashFoldFunc, false)) {
+            if(ht.insert(contextPlayer)) std::cout << "Player record successfully inserted.\n";
         }
         else std::cout << "Player record could not be added. Insertion record is a duplicate name.\n";
         break;
@@ -142,6 +147,13 @@ void performAction(HashTable<Player,int>& ht, int code) {
     }
 }
 
+int promptResponse() {
+    int input = 0;
+    std::cout << "> ";
+    std::cin >> input;
+    return input;
+}
+
 int promptIntegerInput(std::string msg) {
     int x;
     while(true) {
@@ -170,8 +182,8 @@ Player promptPlayerInput() {
     return(Player {name, goalcount});
 }
 
-bool namesClashFoldFunc(const Player& context, const Player& cur, bool accum) {
-    return(context.name == cur.name || accum);
+bool namesClashFoldFunc(const Player& cur, bool accum) {
+    return(contextPlayer.name == cur.name || accum);
 }
 
 bool isGoalCountEqual(const Player& p) {

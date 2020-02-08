@@ -1,11 +1,12 @@
 #ifndef HASH_TABLE_H
 #define HASH_TABLE_H
 
-#include "./HashTableInterface.h"
+// #include "./HashTableInterface.h"
 #include "./List.h"
+#include "./Player.h"
 
 template <typename T, typename K>
-class HashTable : HashTableInterface {
+class HashTable {
     private:
         int buckets;
         int elements;
@@ -14,14 +15,14 @@ class HashTable : HashTableInterface {
         int (*hashFunc)(const K& key, int s);
 
     protected:
-        int hashFromObj(const T& obj);
-        int hashFromKey(const K& key);
+        int hashFromObj(const T& obj) const;
+        int hashFromKey(const K& key) const;
 
     public:
 
-        HashTable(int size, K (*objToKey)(const T& obj), int (*hashFunc)(const K& key, int s));
-        HashTable(const HashTable<T,K>& other);
-        ~HashTable();
+        HashTable<T,K>(int size, K (*objToKey)(const T& obj), int (*hashFunc)(const K& key, int s));
+        HashTable<T,K>(const HashTable<T,K>& other);
+        ~HashTable<T,K>();
 
         bool containsObj(const T& val) const;
 
@@ -42,8 +43,10 @@ class HashTable : HashTableInterface {
         template <typename R>
         R fold(R (*func)(const T& obj, R accum), R initVal) const;
 
-        template <typename R, typename V>
-        R foldWithContext(R (*func)(const V& c, const T& currentObj, R accum), const V& contextObj, R initVal) const;
+        // template <typename R, typename V>
+        // R foldWithContext(R (*func)(const V& c, const T& currentObj, R accum), const V& contextObj, R initVal) const;
 };
+
+// #include "./HashTable.cpp"
 
 #endif

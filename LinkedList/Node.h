@@ -1,7 +1,9 @@
 #ifndef NODE_H
 #define NODE_H
 
+#include <iostream>
 #include <stdexcept>
+#include "./Player.h"
 
 template <typename T>
 class Node {
@@ -32,8 +34,8 @@ class Node {
         template <typename R>
         R fold(R (*func)(const T& curVal, R accum), R initVal) const;
 
-        template <typename R, typename V>
-        R foldWithContext(R (*func)(const V& c, const T& currentObj, R accum), const V& contextObj, R initVal) const;
+        // template <typename R, typename V>
+        // R foldWithContext(R (*func)(const V& c, const T& currentObj, R accum), const V& contextObj, R initVal) const;
 };
 
 

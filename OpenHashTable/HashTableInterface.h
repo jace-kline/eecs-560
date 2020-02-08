@@ -1,10 +1,10 @@
 #ifndef HASH_TABLE_INTERFACE_H
 #define HASH_TABLE_INTERFACE_H
 
-template <typename K, typename T>
+template <typename T, typename K>
 class HashTableInterface {
     public:
-        virtual ~HashTableInterface(){}
+        virtual ~HashTableInterface<T,K>(){}
 
         virtual bool containsObj(const T& val) const = 0;
 

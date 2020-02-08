@@ -184,7 +184,7 @@ void List<T>::traverse(void (*eff)(const T& val)) {
 
 template <typename T>
 void List<T>::traversePrint(void (*printFunc)(const T& val), std::string delimitter) const {
-    if(!isEmpty()) headPtr->traversePrint(eff, delimitter);
+    if(!isEmpty()) headPtr->traversePrint(printFunc, delimitter);
 }
 
 template <typename T>
@@ -193,16 +193,17 @@ List<T> List<T>::filter(bool (*p)(const T& obj)) {
 }
 
 template <typename T>
-void List<T>::combine(List<T>& other) {
+List<T>& List<T>::combine(const List<T>& other) {
     Node<T>* cur = headPtr;
+    Node<T>* otherCopy = new Node<T>(*other.headPtr); // deep copy of other list's node chain
     if(cur == nullptr) headPtr = other.headPtr;
     else {
         while(cur->getNext() != nullptr) {
             cur = cur->getNext();
         }
-        cur->setNext(other.headPtr());
+        cur->setNext(otherCopy);
     }
-    other.headPtr = nullptr;
+    return *this;
 }
 
 template <typename T>
@@ -217,10 +218,13 @@ List<T> reverse(const List<T>& l) {
     return(l2.reverse());
 }
 
-template <typename T>
-template <typename R, typename V>
-R List<T>::foldWithContext(R (*func)(const V& c, const T& currentObj, R accum), const V& contextObj, R initVal) const {
-    return isEmpty() : initVal ? headPtr->foldWithContext(func, contextObj, initVal);
-}
+// template <typename T>
+// template <typename R, typename V>
+// R List<T>::foldWithContext(R (*func)(const V& c, const T& currentObj, R accum), const V& contextObj, R initVal) const {
+//     return(isEmpty() ? initVal : headPtr->foldWithContext(func, contextObj, initVal));
+// }
 
-template class List<int>; // instantiate with int type parameter
+// template class List<int>; // instantiate with int type parameter
+
+template class List<Player>;
+template bool List<Player>::fold(bool (*)(const Player&, bool), bool) const;

@@ -1,20 +1,29 @@
+
 #include "./HashTable.h"
-#include "../Utils.h"
+
+template <typename T>
+T* deepCopyArr(T* other, int size) {
+    T* newArr = new T[size];
+    for(int i = 0; i < size; i++) {
+        newArr[i] = other[i];
+    }
+    return newArr;
+}
 
 template<typename T, typename K>
 HashTable<T,K>::HashTable(int size, K (*objToKeyFunc)(const T& obj), int (*hashFunc)(const K& key, int s)) {
-    buckets = size;
-    array = new List<T>[buckets];
-    hash = hashFunc;
-    objToKey = objToKeyFunc;
+    this->buckets = size;
+    this->array = new List<T>[buckets];
+    this->hashFunc = hashFunc;
+    this->objToKey = objToKeyFunc;
 }
 
 template<typename T, typename K>
 HashTable<T,K>::HashTable(const HashTable<T,K>& other) {
-    buckets = other.buckets;
-    array = deepCopyArr(other.array);
-    hash = other.hash;
-    objToKey = other.objToKey;
+    this->buckets = other.buckets;
+    this->array = deepCopyArr(other.array, other.buckets);
+    this->hashFunc = other.hashFunc;
+    this->objToKey = other.objToKey;
 }
 
 template <typename T, typename K>
@@ -24,8 +33,13 @@ HashTable<T,K>::~HashTable() {
 }
 
 template <typename T, typename K>
-int HashTable<T,K>::hashFromObj(const T& obj) {
-    return hash(objToKey(obj), buckets);
+int HashTable<T,K>::hashFromObj(const T& obj) const {
+    return hashFunc(objToKey(obj), buckets);
+}
+
+template <typename T, typename K>
+int HashTable<T,K>::hashFromKey(const K& key) const {
+    return hashFunc(key, buckets);
 }
 
 template <typename T, typename K>
@@ -64,11 +78,11 @@ int HashTable<T,K>::numElements() const {
 
 template <typename T, typename K>
 float HashTable<T,K>::loadFactor() const {
-    return( elements / size );
+    return( elements / buckets );
 }
 
 template <typename T, typename K>
-List<T> filter(bool (*p)(const T& obj)) {
+List<T> HashTable<T,K>::filter(bool (*p)(const T& obj)) {
     List<T> l;
     for(int i = 0; i < buckets; i++) {
         l.combine(array[i].filter(p));
@@ -80,7 +94,7 @@ template <typename T, typename K>
 void HashTable<T,K>::printTable(void (*printFunc)(const T& val)) const {
     for(int i=0; i < buckets; i++) {
         std::cout << i << ": -> ";
-        array[i].printTraverse(printFunc, " -> ");
+        array[i].traversePrint(printFunc, " -> ");
         std::cout << '\n';
     }
 }
@@ -95,12 +109,15 @@ R HashTable<T,K>::fold(R (*func)(const T& obj, R accum), R initVal) const {
     return acc;
 }
 
-template <typename T, typename K>
-template <typename R, typename V>
-R HashTable<T,K>::foldWithContext(R (*func)(const V& cont, const T& obj, R accum), const V& contextObj, R initVal) const {
-    R acc = initVal;
-    for(int i = buckets - 1; i >= 0; i--) {
-        acc = array[i].foldWithContext(func, contextObj, acc);
-    }
-    return acc;
-}
+// template <typename T, typename K>
+// template <typename R, typename V>
+// R HashTable<T,K>::foldWithContext(R (*func)(const V& cont, const T& obj, R accum), const V& contextObj, R initVal) const {
+//     R acc = initVal;
+//     for(int i = buckets - 1; i >= 0; i--) {
+//         acc = array[i].foldWithContext(func, contextObj, acc);
+//     }
+//     return acc;
+// }
+
+template class HashTable<Player,int>;
+template bool HashTable<Player,int>::fold(bool (*)(const Player&, bool), bool) const;

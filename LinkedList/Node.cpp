@@ -106,11 +106,11 @@ void Node<T>::traverse(void (*eff)(const T& val)) {
 
 template <typename T>
 void Node<T>::traversePrint(void (*printFunc)(const T& val), std::string delimitter) const {
-    printFunc(val);
+    printFunc(obj);
     if(!isLeaf()) {
         std::cout << delimitter;
         next->traversePrint(printFunc, delimitter);
-    } else std::cout << '\n';
+    }
 }
 
 template <typename T>
@@ -130,14 +130,17 @@ void deleteNode(Node<T>* n) {
 
 template <typename T>
 template <typename R>
-R Node<T>::fold(R (*func)(const T& curVal, R accum), R initVal) {
+R Node<T>::fold(R (*func)(const T& curVal, R accum), R initVal) const {
     return func(obj, isLeaf() ? initVal : next->fold(func, initVal));
 }
 
-template <typename T>
-template <typename R, typename V>
-R foldWithContext(R (*func)(const V& c, const T& currentObj, R accum), const V& contextObj, R initVal) const {
-    return func(contextObj, currentObj, isLeaf() ? initVal : next->foldWithContext(func, contextObj, initVal));
-}
+// template <typename T>
+// template <typename R, typename V>
+// R foldWithContext(R (*func)(const V& c, const T& currentObj, R accum), const V& contextObj, R initVal) const {
+//     return func(contextObj, currentObj, isLeaf() ? initVal : next->foldWithContext(func, contextObj, initVal));
+// }
 
-template class Node<int>; // instantiate type parameter as int upon complilation
+//template class Node<int>; // instantiate type parameter as int upon complilation
+
+template class Node<Player>;
+template bool Node<Player>::fold(bool (*)(const Player&, bool), bool) const;
