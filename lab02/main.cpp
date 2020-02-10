@@ -7,12 +7,9 @@
 #include "./Player.h"
 #include "./HashTable.h"
 
-// template class Node<Player>;
-// template class List<Player>;
-// template class HashTable<Player,int>;
-
-static int compareVal = 0;
-static Player contextPlayer;
+int compareVal = 0;
+int hits = 0;
+Player contextPlayer;
 
 int hash(const int& key, int size);
 int playerToKey(const Player& p);
@@ -22,15 +19,16 @@ bool isGoodInput();
 void displayMenu();
 int promptResponse();
 void performAction(HashTable<Player,int>& ht, int code);
-int promptIntegerInput(std::string msg);
+
+template <typename I>
+I promptInput(std::string msg);
 Player promptPlayerInput();
 bool namesClashFoldFunc(const Player& cur, bool accum);
-void printNamesList(const List<Player>& l);
 void printPlayer(const Player& p);
 void printName(const Player& p);
-bool isGoalCountEqual(const Player& p);
-bool isGoalCountGreater(const Player& p);
-bool isGoalCountLess(const Player& p);
+void printWhenGoalCountEqual(const Player& p);
+void printWhenGoalCountGreater(const Player& p);
+void printWhenGoalCountLess(const Player& p);
 
 int main(int argc, char** argv) {
     HashTable<Player,int> ht = HashTable<Player,int>(BUCKETS, playerToKey, hash);
@@ -93,9 +91,9 @@ void displayMenu() {
     std::cout << "\n\n1. Add Player\n"
               << "2. Remove Player\n"
               << "3. Print Players Table\n"
-              << "4. Players with goalcount equal to a given number\n"
-              << "5. Players with goalcount greater than a given number\n"
-              << "6. Players with goalcount less than a given number\n"
+              << "4. Players with goal count equal to a given number\n"
+              << "5. Players with goal count greater than a given number\n"
+              << "6. Players with goal count less than a given number\n"
               << "7. Exit\n\n";
 }
 
@@ -123,18 +121,28 @@ void performAction(HashTable<Player,int>& ht, int code) {
         break;
     }
     case 4: {
-        compareVal = promptIntegerInput("Enter a goal count:\n> ");
-        printNamesList(ht.filter(isGoalCountEqual));
+        compareVal = promptInput<int>("Enter a goal count:\n> ");
+        hits = 0;
+        std::cout << "Players with goal count equal to " << compareVal << ": ";
+        ht.traverseObjects(printWhenGoalCountEqual);
+        std::cout << (hits == 0 ? "No Players Match\n" : "\n");
+        std::cout << '\n';
         break;
     }
     case 5: {
-        compareVal = promptIntegerInput("Enter a goal count:\n> ");
-        printNamesList(ht.filter(isGoalCountGreater));
+        compareVal = promptInput<int>("Enter a goal count:\n> ");
+        hits = 0;
+        std::cout << "Players with goal count greater than " << compareVal << ": ";
+        ht.traverseObjects(printWhenGoalCountGreater);
+        std::cout << (hits == 0 ? "No Players Match\n" : "\n");
         break;
     }
     case 6: {
-        compareVal = promptIntegerInput("Enter a goal count:\n> ");
-        printNamesList(ht.filter(isGoalCountLess));
+        compareVal = promptInput<int>("Enter a goal count:\n> ");
+        hits = 0;
+        std::cout << "Players with goal count greater than " << compareVal << ": ";
+        ht.traverseObjects(printWhenGoalCountLess);
+        std::cout << (hits == 0 ? "No Players Match\n" : "\n");
         break;
     }
     case 7: {
@@ -154,31 +162,26 @@ int promptResponse() {
     return input;
 }
 
-int promptIntegerInput(std::string msg) {
-    int x;
+template <typename I>
+I promptInput(std::string msg) {
+    I x;
     while(true) {
         std::cout << msg;
         std::cin >> x;
         if(isGoodInput()) return x;
-        else std::cout << "Invalid input. Please try again. You must input a valid integer\n";
+        else std::cout << "Invalid input. Please try again.\n";
     }
 }
 
 Player promptPlayerInput() {
-    std::string playerinfo;
     std::string name;
     int goalcount = -1;
-    do {
-        std::cout << "Input a player record in the form '<name>: <goalcount>':\n> ";
-        std::cin >> playerinfo;
-
-        int i = playerinfo.find(':');
-        name = playerinfo.substr(0,i-1);
-        goalcount = std::stoi(playerinfo.substr(i+2));
-
+    name = promptInput<std::string>("Input a player name:\n> ");
+    while(true) {
+        goalcount = promptInput<int>("Input the goal count for this player:\n> ");
         if(goalcount < 0) std::cout << "The goal count provided was invalid. Please try again.\n";
         else break;
-    }while(true);
+    }
     return(Player {name, goalcount});
 }
 
@@ -186,20 +189,25 @@ bool namesClashFoldFunc(const Player& cur, bool accum) {
     return(contextPlayer.name == cur.name || accum);
 }
 
-bool isGoalCountEqual(const Player& p) {
-    return p.goalcount == compareVal;
+void printWhenGoalCountEqual(const Player& p) {
+    if(p.goalcount == compareVal){
+        hits++;
+        std::cout << p.name << ", ";
+    }
 }
 
-bool isGoalCountGreater(const Player& p) {
-    return p.goalcount > compareVal;
+void printWhenGoalCountGreater(const Player& p) {
+    if(p.goalcount > compareVal) {
+        hits++;
+        std::cout << p.name << ", ";
+    }
 }
 
-bool isGoalCountLess(const Player& p) {
-    return p.goalcount < compareVal;
-}
-
-void printNamesList(const List<Player>& l) {
-    l.traversePrint(printName, ", ");
+void printWhenGoalCountLess(const Player& p) {
+    if(p.goalcount < compareVal) {
+        hits++;
+        std::cout << p.name << ", ";
+    }
 }
 
 void printName(const Player& p) {

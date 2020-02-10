@@ -36,7 +36,9 @@ class HashTable {
 
         float loadFactor() const;
 
-        List<T> filter(bool (*p)(const T& obj));
+        void traverseObjects(void (*eff)(const T& obj));
+
+        // List<T> filter(bool (*p)(const T& obj));
 
         void printTable(void (*printFunc)(const T& val)) const;
 

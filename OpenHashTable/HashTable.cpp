@@ -28,7 +28,7 @@ HashTable<T,K>::HashTable(const HashTable<T,K>& other) {
 
 template <typename T, typename K>
 HashTable<T,K>::~HashTable() {
-    if(array != nullptr) delete array;
+    if(array != nullptr) delete[] array;
     array = nullptr;
 }
 
@@ -82,13 +82,20 @@ float HashTable<T,K>::loadFactor() const {
 }
 
 template <typename T, typename K>
-List<T> HashTable<T,K>::filter(bool (*p)(const T& obj)) {
-    List<T> l;
+void HashTable<T,K>::traverseObjects(void (*eff)(const T& obj)) {
     for(int i = 0; i < buckets; i++) {
-        l.combine(array[i].filter(p));
+        array[i].traverse(eff);
     }
-    return l;
 }
+
+// template <typename T, typename K>
+// List<T> HashTable<T,K>::filter(bool (*p)(const T& obj)) {
+//     List<T> l;
+//     for(int i = 0; i < buckets; i++) {
+//         l.combine(array[i].filter(p));
+//     }
+//     return l;
+// }
 
 template <typename T, typename K>
 void HashTable<T,K>::printTable(void (*printFunc)(const T& val)) const {

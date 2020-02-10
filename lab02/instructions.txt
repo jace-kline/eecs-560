@@ -1,0 +1,4 @@
+Instructions: Run the following commands to compile and run the program...
+
+> make
+> ./prog
