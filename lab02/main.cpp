@@ -140,7 +140,7 @@ void performAction(HashTable<Player,int>& ht, int code) {
     case 6: {
         compareVal = promptInput<int>("Enter a goal count:\n> ");
         hits = 0;
-        std::cout << "Players with goal count greater than " << compareVal << ": ";
+        std::cout << "Players with goal count less than " << compareVal << ": ";
         ht.traverseObjects(printWhenGoalCountLess);
         std::cout << (hits == 0 ? "No Players Match\n" : "\n");
         break;
@@ -217,5 +217,3 @@ void printName(const Player& p) {
 void printPlayer(const Player& p) {
     std::cout << p;
 }
-
-
