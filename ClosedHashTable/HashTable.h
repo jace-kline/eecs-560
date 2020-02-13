@@ -3,6 +3,8 @@
 
 #include "./Bucket.h"
 #include <cmath> // for the floor function
+#include "./User.h"
+#include <string>
 
 template<typename T, typename K>
 class HashTable {
@@ -13,6 +15,7 @@ class HashTable {
         int (*hash)(const K& key, int s);
         int (*f)(int i);
         K (*objToKey)(const T& obj);
+        bool (*areDuplicates)(const T& obj1, const T& obj2);
 
     protected:
         int h_fromKey(K key);
@@ -24,17 +27,25 @@ class HashTable {
         // Otherwise, returns -1 (can't find spot)
         int genIndex(const T& x);
 
-    private:
+    public:
         HashTable<T,K>(int size, 
                        int (*hashFunc)(const K& key, int s), 
                        int (*collisionFunc)(int i),
-                       K (*objectToKeyFunc)(const T& obj));
+                       K (*objectToKeyFunc)(const T& obj),
+                       bool (*dup)(const T& o1, const T& o2));
         HashTable<T,K>(const HashTable<T,K>& other);
         ~HashTable<T,K>();
         bool contains(const T& obj) const;
         void insert(const T& obj);
         bool remove(const T& obj);
         void rehash();
+        void print() const;
+
+        template <typename R>
+        void traverseWithCondition(bool (*p)(const T&, R), 
+                                   void (*eff)(const T&), 
+                                   void (*ifnone)(),
+                                   R) const;
 };
 
 float loadFactor(int n, int m);

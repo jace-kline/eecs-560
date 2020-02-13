@@ -1,10 +1,24 @@
 #include "./User.h"
 
-bool operator==(const User& u1, const User& u2) {
-    return(u1.username == u2.username);
+User& User::operator=(const User& other) {
+    username = other.username;
+    password = other.password;
 }
 
-int hash(std::string pass, int size) {
+std::ostream& operator<<(std::ostream& o, const User& u) {
+    o << u.username << " : " << u.password;
+    return o;
+}
+
+void printUser(const User& u) {
+    std::cout << u << '\n';
+}
+
+bool operator==(const User& u1, const User& u2) {
+    return(u1.username == u2.username && u1.password == u2.password);
+}
+
+int hash(const std::string& pass, int size) {
     int sum = 0;
     char c;
     for(int i = 0; i < pass.length(); i++) {
@@ -37,6 +51,18 @@ bool isValidPassword(std::string s) {
     }
     if(num_nums >= 2 && num_chars >= 3) return true;
     return false;
+}
+
+bool isMatchingUsername(const User& u, std::string uname) {
+    return(u.username == uname);
+}
+
+bool isMatchingPassword(const User& u, std::string pass) {
+    return(u.password == pass);
+}
+
+bool isDuplicateUsername(const User& u1, const User& u2) {
+    return(u1.username == u2.username);
 }
 
 bool allLowercase(std::string s) {

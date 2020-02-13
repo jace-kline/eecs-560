@@ -1,13 +1,14 @@
 #include "./HashTable.h"
 
 template <typename T, typename K>
-HashTable<T,K>::HashTable(int size, int (*hashFunc)(const K& key, int s), int (*collisionFunc)(int i), K (*objectToKeyFunc)(const T& obj)) {
+HashTable<T,K>::HashTable(int size, int (*hashFunc)(const K& key, int s), int (*collisionFunc)(int i), K (*objectToKeyFunc)(const T& obj), bool (*d)(const T& o1, const T& o2)) {
     m = size;
     n = 0;
     arr = new Bucket<T>[m];
     hash = hashFunc;
     f = collisionFunc;
     objToKey = objectToKeyFunc;
+    areDuplicates = d;
 }
 
 template <typename T, typename K>
@@ -18,6 +19,7 @@ HashTable<T,K>::HashTable(const HashTable<T,K>& other) {
     hash = other.hash;
     f = other.f;
     objToKey = other.objToKey;
+    areDuplicates = other.areDuplicates;
 }
 
 template <typename T, typename K>
@@ -45,7 +47,7 @@ int HashTable<T,K>::genIndex(const T& x) {
     int j;
     for(int i = 0; i < m; i++) {
         j = h_iter(x, i);
-        if(arr[j].getItem() == x) return -1;
+        if(areDuplicates(arr[j].getItem(), x)) return -1;
         if(arr[j].isEmpty()) return j;
     }
     return -1;
@@ -56,7 +58,7 @@ bool HashTable<T,K>::contains(const T& obj) const {
     int j;
     for(int i = 0; i < m; i++) {
         j = h_iter(i);
-        if(arr[j].isEmpty()) return false;
+        if(arr[j].isEmpty() && !(arr[j].wasDeleted())) return false;
         else if(arr[j].getItem() == obj) return true;
     }
     return false;
@@ -78,7 +80,7 @@ bool HashTable<T,K>::remove(const T& obj) {
     int j;
     for(int i = 0; i < m; i++) {
         j = h_iter(obj, i);
-        if(arr[j].isEmpty()) return false;
+        if(arr[j].isEmpty() && !(arr[j].wasDeleted())) return false;
         else if(arr[j].getItem() == obj) return(arr[j].removeItem());
     }
 }
@@ -93,6 +95,30 @@ void HashTable<T,K>::rehash() {
     Bucket<T>* tmp = arr;
     *this = other; // Shallow copy
     if(tmp != nullptr) delete[] tmp;
+}
+
+template <typename T, typename K>
+void HashTable<T,K>::print() const {
+    for(int i = 0; i < m; i++) {
+        std::cout << i << ": " << arr[i].getItem() << '\n';
+    }
+}
+
+template <typename T, typename K>
+template <typename R>
+void HashTable<T,K>::traverseWithCondition(bool (*p)(const T&, R), 
+                                   void (*eff)(const T&), 
+                                   void (*ifnone)(),
+                                   R x) const
+{
+    bool hit = false;
+    for(int i = 0; i < m; i++) {
+        if(p(arr[i].getItem(), x)) {
+            eff(arr[i].getItem());
+            hit = true;
+        }
+    }
+    if(!hit) ifnone();
 }
 
 float loadFactor(int n, int m) {
@@ -122,3 +148,10 @@ R* deepCopyArr(R* other, int size) {
     }
     return newArr;
 }
+
+template class HashTable<User, std::string>;
+template void HashTable<User, std::string>::traverseWithCondition<std::string>(bool (*p)(const User&, std::string), 
+                                   void (*eff)(const User&), 
+                                   void (*ifnone)(),
+                                   std::string) const;
+template Bucket<User>* deepCopyArr(Bucket<User>*, int);

@@ -1,10 +1,13 @@
 #ifndef BUCKET_H
 #define BUCKET_H
 
+#include "./User.h"
+
 template <typename T>
 class Bucket {
     private:
-        bool empty; // Has never been filled or has been deleted
+        bool empty; // Not currently filled
+        bool deleted; // Was filled, but has been deleted
         T item;
     public:
         Bucket<T>();
@@ -12,6 +15,7 @@ class Bucket {
         Bucket<T>(const Bucket<T>& other);
         ~Bucket<T>();
         bool isEmpty() const;
+        bool wasDeleted() const;
         T getItem() const;
 
         // Returns true if the bucket was not empty initially
