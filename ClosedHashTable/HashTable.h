@@ -2,6 +2,7 @@
 #define HASHTABLE_H
 
 #include "./Bucket.h"
+#include <cmath> // for the floor function
 
 template<typename T, typename K>
 class HashTable {
@@ -23,10 +24,6 @@ class HashTable {
         // Otherwise, returns -1 (can't find spot)
         int genIndex(const T& x);
 
-        // Creates an entirely new hash table object
-        HashTable<T,K> rehashImmutable();
-        bool needsRehash() const;
-
     private:
         HashTable<T,K>(int size, 
                        int (*hashFunc)(const K& key, int s), 
@@ -34,12 +31,19 @@ class HashTable {
                        K (*objectToKeyFunc)(const T& obj));
         HashTable<T,K>(const HashTable<T,K>& other);
         ~HashTable<T,K>();
-        float loadFactor() const;
         bool contains(const T& obj) const;
-        bool insert(const T& obj);
+        void insert(const T& obj);
         bool remove(const T& obj);
         void rehash();
-        HashTable<T,K>& operator=(const HashTable<T,K>& other);
 };
+
+float loadFactor(int n, int m);
+int newSize(int s); //return the number of buckets for a rehashed array
+int nextPrime(int n);
+bool isPrime(int n);
+
+template <typename R>
+R* deepCopyArr(R* other, int size);
+
 
 #endif
