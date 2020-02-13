@@ -8,10 +8,11 @@ struct User {
     std::string password;
 };
 
+bool operator==(const User& u1, const User& u2);
 int hash(std::string uname, int size);
 std::string userToHashKey(const User& u);
 bool isValidUsername(std::string s);
 bool isValidPassword(std::string s);
-int toAscii(char c);
+bool allLowercase(std::string s);
 
 #endif
