@@ -28,22 +28,22 @@ HashTable<T,K>::~HashTable() {
 }
 
 template <typename T, typename K>
-int HashTable<T,K>::h_fromKey(K key) {
+int HashTable<T,K>::h_fromKey(K key) const {
     return hash(key, m);
 }
 
 template <typename T, typename K>
-int HashTable<T,K>::h(const T& obj) {
+int HashTable<T,K>::h(const T& obj) const {
     return(h_fromKey(objToKey(obj)));
 }
 
 template <typename T, typename K>
-int HashTable<T,K>::h_iter(const T& x, int i) {
+int HashTable<T,K>::h_iter(const T& x, int i) const {
     return((h(x) + f(i)) % m);
 }
 
 template <typename T, typename K>
-int HashTable<T,K>::genIndex(const T& x) {
+int HashTable<T,K>::genIndex(const T& x) const {
     int j;
     for(int i = 0; i < m; i++) {
         j = h_iter(x, i);
@@ -57,7 +57,7 @@ template <typename T, typename K>
 bool HashTable<T,K>::contains(const T& obj) const {
     int j;
     for(int i = 0; i < m; i++) {
-        j = h_iter(i);
+        j = h_iter(obj, i);
         if(arr[j].isEmpty() && !(arr[j].wasDeleted())) return false;
         else if(arr[j].getItem() == obj) return true;
     }
@@ -65,12 +65,13 @@ bool HashTable<T,K>::contains(const T& obj) const {
 }
 
 template <typename T, typename K>
-void HashTable<T,K>::insert(const T& obj) {
+bool HashTable<T,K>::insert(const T& obj) {
     if(loadFactor(n+1, m) > 0.5) rehash();
     int i = genIndex(obj);
     if(i == -1) return false;
     else {
         arr[i].setItem(obj);
+        n++;
         return true;
     }
 }
@@ -83,11 +84,12 @@ bool HashTable<T,K>::remove(const T& obj) {
         if(arr[j].isEmpty() && !(arr[j].wasDeleted())) return false;
         else if(arr[j].getItem() == obj) return(arr[j].removeItem());
     }
+    return false;
 }
 
 template <typename T, typename K>
 void HashTable<T,K>::rehash() {
-    HashTable<T,K> other = HashTable<T,K>(newSize(m), hash, f, objToKey);
+    HashTable<T,K> other = HashTable<T,K>(newSize(m), hash, f, objToKey, areDuplicates);
     for(int i = 0; i < m; i++) {
         if(!arr[i].isEmpty()) other.insert(arr[i].getItem());
     }
@@ -100,7 +102,9 @@ void HashTable<T,K>::rehash() {
 template <typename T, typename K>
 void HashTable<T,K>::print() const {
     for(int i = 0; i < m; i++) {
-        std::cout << i << ": " << arr[i].getItem() << '\n';
+        std::cout << i << ": ";
+        if(!arr[i].isEmpty()) std::cout << arr[i].getItem();
+        std::cout << '\n';
     }
 }
 

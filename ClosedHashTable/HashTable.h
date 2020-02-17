@@ -18,14 +18,14 @@ class HashTable {
         bool (*areDuplicates)(const T& obj1, const T& obj2);
 
     protected:
-        int h_fromKey(K key);
-        int h(const T& obj);
-        int h_iter(const T& x, int i);
+        int h_fromKey(K key) const;
+        int h(const T& obj) const;
+        int h_iter(const T& x, int i) const;
 
         // Iterates h_iter with incremented i argument
         // If finds an available spot for x, returns that index
         // Otherwise, returns -1 (can't find spot)
-        int genIndex(const T& x);
+        int genIndex(const T& x) const;
 
     public:
         HashTable<T,K>(int size, 
@@ -36,7 +36,7 @@ class HashTable {
         HashTable<T,K>(const HashTable<T,K>& other);
         ~HashTable<T,K>();
         bool contains(const T& obj) const;
-        void insert(const T& obj);
+        bool insert(const T& obj);
         bool remove(const T& obj);
         void rehash();
         void print() const;

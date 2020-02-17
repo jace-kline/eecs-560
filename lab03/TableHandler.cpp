@@ -1,8 +1,8 @@
 #include "./TableHandler.h"
 
 UserTableHandler::UserTableHandler() :
-    linear(7, hash, linearCollisionFunc, userToHashKey, isDuplicateUsername),
-    quadratic(7, hash, quadraticCollisionFunc, userToHashKey, isDuplicateUsername) 
+    linear(11, hash, linearCollisionFunc, userToHashKey, isDuplicateUsername),
+    quadratic(11, hash, quadraticCollisionFunc, userToHashKey, isDuplicateUsername) 
 {}
 
 UserTableHandler::~UserTableHandler() {}
@@ -33,7 +33,8 @@ void UserTableHandler::linearOutputHeader() const {
     std::cout << "---------------\n\n";
 }
 
-void UserTableHandler::linearOutputHeader() const {
+void UserTableHandler::quadraticOutputHeader() const {
+    std::cout << '\n';
     std::cout << "Quadratic Probing:\n";
     std::cout << "------------------\n\n";
 }
@@ -45,7 +46,7 @@ void UserTableHandler::addUser(const User& u) {
     std::string msg = "User record successfully added.\n";
     linearOutputHeader();
     std::cout << msg;
-    quadraticOutputHeader;
+    quadraticOutputHeader();
     std::cout << msg;
     std::cout << '\n';
 }
@@ -74,6 +75,18 @@ void UserTableHandler::forgotUsername(std::string pass) const {
     quadraticOutputHeader();
     quadratic.traverseWithCondition<std::string>(isMatchingPassword, printUser, printNotFound, pass);
 }
+
+void UserTableHandler::printUsers() const {
+    linearOutputHeader();
+    linear.print();
+
+    quadraticOutputHeader();
+    quadratic.print();
+}
+
+int linearCollisionFunc(int i) { return i; }
+
+int quadraticCollisionFunc(int i) { return(i ^ 2);}
 
 void printNotFound() {
     std::cout << "No users match the given data provided.\n";

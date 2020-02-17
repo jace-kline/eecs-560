@@ -3,6 +3,7 @@
 User& User::operator=(const User& other) {
     username = other.username;
     password = other.password;
+    return *this;
 }
 
 std::ostream& operator<<(std::ostream& o, const User& u) {

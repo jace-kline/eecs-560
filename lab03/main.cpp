@@ -61,6 +61,13 @@ void displayMenu() {
               << "6. Exit\n\n";
 }
 
+int promptResponse() {
+    int input = 0;
+    std::cout << "> ";
+    std::cin >> input;
+    return input;
+}
+
 bool isGoodInput() {
     if(std::cin.fail()) {
         std::cout.clear();
