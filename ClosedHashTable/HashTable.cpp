@@ -1,10 +1,12 @@
 #include "./HashTable.h"
+#include <iomanip>
 
 template <typename T, typename K>
 HashTable<T,K>::HashTable(int size, int (*hashFunc)(const K& key, int s), int (*collisionFunc)(int i), K (*objectToKeyFunc)(const T& obj), bool (*d)(const T& o1, const T& o2)) {
     m = size;
+    const int m_ = m;
     n = 0;
-    arr = new Bucket<T>[m];
+    arr = new Bucket<T>[m_];
     hash = hashFunc;
     f = collisionFunc;
     objToKey = objectToKeyFunc;
@@ -44,13 +46,38 @@ int HashTable<T,K>::h_iter(const T& x, int i) const {
 
 template <typename T, typename K>
 int HashTable<T,K>::genIndex(const T& x) const {
-    int j;
+    int j = 0;
     for(int i = 0; i < m; i++) {
         j = h_iter(x, i);
-        if(areDuplicates(arr[j].getItem(), x)) return -1;
         if(arr[j].isEmpty()) return j;
+        else if(areDuplicates(arr[j].getItem(), x)) return -1;
     }
     return -1;
+}
+
+template <typename T, typename K>
+void HashTable<T,K>::overwriteWith(HashTable<T,K>* other) {
+    Bucket<T>* tmp = arr;
+    arr = other->arr;
+    n = other->n;
+    m = other->m;
+    hash = other->hash;
+    f = other->f;
+    objToKey = other->objToKey;
+    areDuplicates = other->areDuplicates;
+    if(tmp != nullptr) delete[] tmp;
+    other->arr = nullptr;
+    delete other;
+}
+
+template <typename T, typename K>
+bool HashTable<T,K>::existsDuplicate(const T& obj) const {
+    for(int i = 0; i < m; i++) {
+        if(!arr[i].isEmpty()) {
+            if(areDuplicates(obj, arr[i].getItem())) return true;
+        }
+    }
+    return false;
 }
 
 template <typename T, typename K>
@@ -66,13 +93,16 @@ bool HashTable<T,K>::contains(const T& obj) const {
 
 template <typename T, typename K>
 bool HashTable<T,K>::insert(const T& obj) {
-    if(loadFactor(n+1, m) > 0.5) rehash();
+    if(existsDuplicate(obj)) return false;
+    if(((float)n / (float)m) > 0.5) {
+        rehash();
+    }
     int i = genIndex(obj);
     if(i == -1) return false;
     else {
-        arr[i].setItem(obj);
-        n++;
-        return true;
+        bool r = arr[i].setItem(obj);
+        if(r) n++;
+        return r;
     }
 }
 
@@ -89,14 +119,12 @@ bool HashTable<T,K>::remove(const T& obj) {
 
 template <typename T, typename K>
 void HashTable<T,K>::rehash() {
-    HashTable<T,K> other = HashTable<T,K>(newSize(m), hash, f, objToKey, areDuplicates);
+    std::cout << "\nREHASH OCCURRED\n";
+    HashTable<T,K>* other = new HashTable<T,K>(newSize(m), hash, f, objToKey, areDuplicates);
     for(int i = 0; i < m; i++) {
-        if(!arr[i].isEmpty()) other.insert(arr[i].getItem());
+        if(!arr[i].isEmpty()) other->insert(arr[i].getItem());
     }
-    other.n = n;
-    Bucket<T>* tmp = arr;
-    *this = other; // Shallow copy
-    if(tmp != nullptr) delete[] tmp;
+    overwriteWith(other);
 }
 
 template <typename T, typename K>

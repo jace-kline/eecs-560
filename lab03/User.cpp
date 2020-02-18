@@ -24,7 +24,7 @@ int hash(const std::string& pass, int size) {
     char c;
     for(int i = 0; i < pass.length(); i++) {
         c = pass.at(i);
-        sum += (c >= 'a' && c <= 'z' ? c : (c >= '0' && c <= '9' ? c - '0' : 0));
+        sum += (int)(c >= 'a' && c <= 'z' ? c : (c >= '0' && c <= '9' ? c - '0' : 0));
     }
     return(sum % size);
 }

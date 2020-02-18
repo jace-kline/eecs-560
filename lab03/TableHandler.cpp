@@ -12,15 +12,17 @@ void UserTableHandler::addUsersFromFile(std::string filename) {
     std::string s1;
     char comma;
     std::string s2;
+    User u;
     fs.open(filename);
     while(fs.peek() != EOF) {
         fs >> s1;
-        if(s1.at(s1.length() - 1) == ',') s1.pop_back();
+        if(s1.back() == ',') s1.pop_back();
         else fs >> comma;
         fs >> s2;
-        if(s2.at(s2.length() - 1) == '\n') s2.pop_back();
+        if(s2.back() == '\n') s2.pop_back();
         if(isValidUsername(s1) && isValidPassword(s2)) {
-            User u = User {s1, s2};
+            u.username = s1;
+            u.password = s2;
             linear.insert(u);
             quadratic.insert(u);
         }
@@ -40,15 +42,14 @@ void UserTableHandler::quadraticOutputHeader() const {
 }
 
 void UserTableHandler::addUser(const User& u) {
-    linear.insert(u);
-    quadratic.insert(u);
-
     std::string msg = "User record successfully added.\n";
+    std::string failmsg = "Error. User record could not be inserted. Possibly overlapping usernames?\n";
     linearOutputHeader();
-    std::cout << msg;
+    if(linear.insert(u)) std::cout << msg;
+    else std::cout << failmsg;
     quadraticOutputHeader();
-    std::cout << msg;
-    std::cout << '\n';
+    if(quadratic.insert(u)) std::cout << msg;
+    else std::cout << failmsg;
 }
 
 void UserTableHandler::removeUser(const User& u) {
@@ -86,7 +87,7 @@ void UserTableHandler::printUsers() const {
 
 int linearCollisionFunc(int i) { return i; }
 
-int quadraticCollisionFunc(int i) { return(i ^ 2);}
+int quadraticCollisionFunc(int i) { return(i * i);}
 
 void printNotFound() {
     std::cout << "No users match the given data provided.\n";

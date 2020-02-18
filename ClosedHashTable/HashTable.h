@@ -21,6 +21,8 @@ class HashTable {
         int h_fromKey(K key) const;
         int h(const T& obj) const;
         int h_iter(const T& x, int i) const;
+        void overwriteWith(HashTable<T,K>* other); // overwrites this table with other table
+        bool existsDuplicate(const T& obj) const;
 
         // Iterates h_iter with incremented i argument
         // If finds an available spot for x, returns that index
