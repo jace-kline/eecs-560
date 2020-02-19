@@ -1,6 +1,9 @@
 #ifndef NODE_H
 #define NODE_H
 
+#include <stdexcept>
+#include "Movie.h"
+
 template <typename T>
 class Node {
     private:
@@ -9,7 +12,8 @@ class Node {
         Node<T>* right;
 
     protected:
-        Node<T>* farRightLeaf();
+        void doLevel(void (*eff)(const T&), int level) const;
+        void doLevelIfLeaf(void (*eff)(const T&), int level) const;
     
     public:
         Node<T>(const T& obj);
@@ -23,12 +27,24 @@ class Node {
         T getItem() const;
         Node<T>* getLeft();
         Node<T>* getRight();
+        int numNodes() const;
+        bool add(const T& obj);
+
+        template <typename R>
+        bool anyNodesSatisfy(bool (*p)(Node<T>*, R), R);
+        // bool contains(const T& obj) const;
+        // bool containsWithRelation(bool (*relation)(const T&, const T&));
+        T popLastLeaf();
+        // void combine(Node<T>* other);
         void setItem(const T& obj);
         void setLeft(Node<T>* l);
         void setRight(Node<T>* r);
+        // Node<T>* rightmostLeaf();
         void traversePreorder(void (*eff)(const T&)) const;
         void traversePostorder(void (*eff)(const T&)) const;
         void traverseInorder(void (*eff)(const T&)) const;
+        void traverseLevel(void (*eff)(const T&)) const;
+        void traverseLeavesLevel(void (*eff)(const T&)) const;
 };
 
 #endif

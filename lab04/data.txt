@@ -1,0 +1,7 @@
+johnwick, 4.3
+godzilla, 4.5
+joker, 4.6
+jurassicpark, 4.2
+starwars, 5
+psycho, 4.4
+argo, 4.8
