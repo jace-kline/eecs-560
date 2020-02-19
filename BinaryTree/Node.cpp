@@ -59,7 +59,10 @@ bool Node<T>::add(const T& obj) {
         if(r_nodes == 0) {
             right = new Node<T>(obj);
             return true;
-        } else return right->add(obj);
+        } else if(l_nodes > 0) {
+            if(left->isFull()) return right->add(obj);
+        }
+        return left->add(obj);
     }
     return false;
 }
