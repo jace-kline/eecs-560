@@ -2,7 +2,7 @@
 #include <iomanip>
 
 template <typename T, typename K>
-HashTable<T,K>::HashTable(int size, int (*hashFunc)(const K& key, int s), int (*collisionFunc)(int i), K (*objectToKeyFunc)(const T& obj), bool (*d)(const T& o1, const T& o2)) {
+HashTable<T,K>::HashTable(int size, int (*hashFunc)(const K& key, int s), int (*collisionFunc)(const K&, int i), K (*objectToKeyFunc)(const T& obj), bool (*d)(const T& o1, const T& o2)) {
     m = size;
     const int m_ = m;
     n = 0;
@@ -93,10 +93,9 @@ bool HashTable<T,K>::contains(const T& obj) const {
 
 template <typename T, typename K>
 bool HashTable<T,K>::insert(const T& obj) {
-    if(existsDuplicate(obj)) return false;
-    if(((float)n / (float)m) > 0.5) {
-        rehash();
-    }
+    // if(((float)n / (float)m) > 0.5) {
+    //     rehash();
+    // }
     int i = genIndex(obj);
     if(i == -1) return false;
     else {
@@ -172,9 +171,9 @@ bool isPrime(int n) {
     return true;
 }
 
-template <typename R>
-R* deepCopyArr(R* other, int size) {
-    R* newArr = new R[size];
+template <typename G>
+G* deepCopyArr(G* other, int size) {
+    G* newArr = new G[size];
     for(int i = 0; i < size; i++) {
         newArr[i] = other[i];
     }

@@ -4,6 +4,7 @@
 #include "Bucket.h"
 #include <cmath> // for the floor function
 #include <string>
+#include <iostream>
 
 template<typename T, typename K>
 class HashTable {
@@ -54,8 +55,8 @@ int newSize(int s); //return the number of buckets for a rehashed array
 int nextPrime(int n);
 bool isPrime(int n);
 
-template <typename R>
-R* deepCopyArr(R* other, int size);
+template <typename G>
+G* deepCopyArr(G* other, int size);
 
 
 #endif
