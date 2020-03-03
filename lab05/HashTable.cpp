@@ -83,7 +83,7 @@ bool HashTable<T,K>::existsDuplicate(const T& obj) const {
 template <typename T, typename K>
 bool HashTable<T,K>::contains(const T& obj) const {
     int j;
-    for(int i = 0; i < m; i++) {
+    for(int i = 0; i < MAX_SEARCHES; i++) {
         j = h_iter(obj, i);
         if(arr[j].isEmpty() && !(arr[j].wasDeleted())) return false;
         else if(arr[j].getItem() == obj) return true;

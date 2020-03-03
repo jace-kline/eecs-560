@@ -200,5 +200,4 @@ void Node<T>::traverseLeavesLevel(void (*eff)(const T&)) const {
     }
 }
 
-template class Node<Movie>;
-template bool Node<Movie>::anyNodesSatisfy<std::string>(bool (*)(Node<Movie>*, std::string), std::string);
+template class Node<int>;

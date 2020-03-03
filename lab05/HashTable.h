@@ -6,6 +6,8 @@
 #include <string>
 #include <iostream>
 
+#define MAX_SEARCHES 25
+
 template<typename T, typename K>
 class HashTable {
     private:

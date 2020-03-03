@@ -19,18 +19,18 @@ class BinaryTree {
         bool isFull() const;
         bool add(const T& obj);
 
-        template <typename R>
-        bool anyNodesSatisfy(bool (*p)(Node<T>*, R), R);
+        // template <typename R>
+        // bool anyNodesSatisfy(bool (*p)(Node<T>*, R), R);
         // bool contains(const T& obj) const;
-        // bool remove(const T& obj);
+        bool remove(const T& obj);
         // bool removeWithCondition(bool (*p)(const T&));
-        T popLastLeaf();
+        // T popLastLeaf();
         int numNodes() const;
-        void traversePreorder(void (*eff)(const T&)) const;
-        void traversePostorder(void (*eff)(const T&)) const;
+        // void traversePreorder(void (*eff)(const T&)) const;
+        // void traversePostorder(void (*eff)(const T&)) const;
         void traverseInorder(void (*eff)(const T&)) const;
         void traverseLevel(void (*eff)(const T&)) const;
-        void traverseLeavesLevel(void (*eff)(const T&)) const;
+        // void traverseLeavesLevel(void (*eff)(const T&)) const;
 };
 
 #endif
