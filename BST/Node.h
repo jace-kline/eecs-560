@@ -3,6 +3,24 @@
 
 #include <stdexcept>
 
+// Helper double-linked list class for inorder operations on BST Nodes
+template <typename T>
+class ListNode {
+    public:
+        T item;
+        ListNode<T>* prev;
+        ListNode<T>* next;
+        ListNode<T>(const T& obj);
+        ListNode<T>(const T& obj, ListNode<T>* p, ListNode<T>* n);
+        ~ListNode<T>();
+        T at(int i) const;
+        ListNode<T>* head();
+        ListNode<T>* last();
+        // Assumption that repeated elements are adjacent
+        ListNode<T>* kthUniqueItemPtr(int k);
+        ListNode<T>* inorderSuccessorPtr(const T& obj);
+};
+
 // Type T must have <, >, <=, >=, == operators defined
 template <typename T>
 class Node {
@@ -13,10 +31,14 @@ class Node {
 
     protected:
         void doLevel(void (*eff)(const T&), int level) const;
+        void doReverseLevel(void (*eff)(const T&), int level) const;
+        int traverseLeftSideHelp(void (*eff)(const T&), int threshold) const;
+        int traverseRightSideHelp(void (*eff)(const T&), int threshold) const;
         // void doLevelIfLeaf(void (*eff)(const T&), int level) const;
-        Node<T>* removeHelper(Node<T>* target, bool parentOnLeft);
-        Node<T>* successorNode() const;
-        Node<T>* furthestLeftNode() const;
+        Node<T>* removeHelper(Node<T>* target);
+        ListNode<T>* inorderSuccessorHelp(const T& obj) const;
+        ListNode<T>* toInorderListHelper() const;
+        ListNode<T>* toInorderList() const;
 
     public:
         Node<T>(const T& obj);
@@ -48,7 +70,13 @@ class Node {
         // void traversePostorder(void (*eff)(const T&)) const;
         void traverseInorder(void (*eff)(const T&)) const;
         void traverseLevel(void (*eff)(const T&)) const;
+        void traverseSpiralLevel(void (*eff)(const T&)) const;
+        void traverseLeftSide(void (*eff)(const T&)) const;
+        void traverseRightSide(void (*eff)(const T&)) const;
         // void traverseLeavesLevel(void (*eff)(const T&)) const;
+        T inorderSuccessor(const T& obj); // Call this from the root
+        T getKthUniqueItem(int k) const;
 };
+
 
 #endif

@@ -37,6 +37,15 @@ void Node<T>::doLevel(void (*eff)(const T& obj), int level) const {
     }
 }
 
+template <typename T>
+void Node<T>::doReverseLevel(void (*eff)(const T& obj), int level) const {
+    if(level == 0) eff(item);
+    else {
+        if(right != nullptr) right->doReverseLevel(eff, level - 1);
+        if(left != nullptr) left->doReverseLevel(eff, level - 1);
+    }
+}
+
 // template <typename T>
 // void Node<T>::doLevelIfLeaf(void (*eff)(const T& obj), int level) const {
 //     if(level == 0 && isLeaf()) eff(item);
@@ -69,14 +78,14 @@ bool Node<T>::remove(const T& obj) {
     if(obj < item) {
         if(left == nullptr) return false;
         else if(left->item == obj) {
-            left = removeHelper(left, false);
+            left = removeHelper(left);
             return true;
         }
         else return(left->remove(obj));
     } else {
         if(right == nullptr) return false;
         else if(right->item == obj) {
-            right = removeHelper(right, true);
+            right = removeHelper(right);
             return true;
         }
         else return(right->remove(obj));
@@ -84,7 +93,7 @@ bool Node<T>::remove(const T& obj) {
 }
 
 template <typename T>
-Node<T>* Node<T>::removeHelper(Node<T>* target, bool parentOnLeft) {
+Node<T>* Node<T>::removeHelper(Node<T>* target) {
     Node<T>* p = nullptr;
     if(target->isLeaf()) delete target;
     else if(target->left == nullptr) {
@@ -113,18 +122,6 @@ Node<T>* Node<T>::removeHelper(Node<T>* target, bool parentOnLeft) {
     return p;
 }
 
-template <typename T>
-Node<T>* Node<T>::successorNode() const {
-    if(right == nullptr) return nullptr;
-    else if(right->left == nullptr) return right;
-    else return(right->furthestLeftNode());
-}
-
-template <typename T>
-Node<T>* Node<T>::furthestLeftNode() const {
-    if(left == nullptr) return this;
-    else return(left->furthestLeftNode());
-}
 
 // template <typename T>
 // template <typename R>
@@ -242,6 +239,127 @@ void Node<T>::traverseLevel(void (*eff)(const T&)) const {
     }
 }
 
+template <typename T>
+void Node<T>::traverseSpiralLevel(void (*eff)(const T&)) const {
+    for(int i = 0; i <= height(); i++) {
+        if(i % 2 == 0) doLevel(eff, i);
+        else doReverseLevel(eff, i);
+    }
+}
+
+template <typename T>
+void Node<T>::traverseLeftSide(void (*eff)(const T&)) const {
+    traverseLeftSideHelp(eff, 0);
+}
+
+template <typename T>
+void Node<T>::traverseRightSide(void (*eff)(const T&)) const {
+    traverseRightSideHelp(eff, 0);
+}
+
+template <typename T>
+int Node<T>::traverseLeftSideHelp(void (*eff)(const T&), int t) const {
+    if(t <= 0) eff(item);
+    if(isLeaf()) return 1;
+    else {
+        int l = left == nullptr ? 0 : 1 + left->traverseLeftSideHelp(eff, t-1);
+        int r = right == nullptr ? 0 : 1 + right->traverseLeftSideHelp(eff, l);
+        return(l > r ? l : r);
+    }
+}
+
+template <typename T>
+int Node<T>::traverseRightSideHelp(void (*eff)(const T&), int t) const {
+    if(t <= 0) eff(item);
+    if(isLeaf()) return 1;
+    else {
+        int r = right == nullptr ? 0 : 1 + right->traverseRightSideHelp(eff, t-1);
+        int l = left == nullptr ? 0 : 1 + left->traverseRightSideHelp(eff, r);
+        return(l > r ? l : r);
+    }
+}
+
+template <typename T>
+ListNode<T>* Node<T>::toInorderListHelper() const {
+    if(isLeaf()) return(new ListNode<T>(item));
+    else {
+        ListNode<T>* prev = left == nullptr ? nullptr : left->toInorderListHelper().last();
+        ListNode<T>* rest = right == nullptr ? nullptr : right->toInorderListHelper().head();
+        return(new ListNode<T>(item, prev, rest));
+    }
+}
+
+template <typename T>
+ListNode<T>* Node<T>::toInorderList() const {
+    return(toInorderListHelper().head());
+}
+
+template <typename T>
+T Node<T>::inorderSuccessor(const T& obj) {
+    ListNode<T>* l = toInorderList();
+    ListNode<T>* p = l->inorderSuccessorPtr(obj);
+    if(p == nullptr) throw(std::runtime_error("No successor to highest priority item."));
+    else {
+        T x = p->item;
+        delete l;
+        return x;
+    }
+}
+
+template <typename T>
+T Node<T>::getKthUniqueItem(int k) const {
+    if(k < 1) throw(std::runtime_error("List index error. k-value too small."));
+    ListNode<T>* l = toInorderList();
+    ListNode<T>* p = l->kthUniqueItemPtr(k);
+    if(p == nullptr) throw(std::runtime_error("List index error. k-value too large."));
+    else {
+        T x = p->item;
+        delete l;
+        return x;
+    }
+}
+
+template <typename T>
+ListNode<T>::ListNode(const T& obj) : item(obj), prev(nullptr), next(nullptr) {}
+
+template <typename T>
+ListNode<T>::ListNode(const T& obj, ListNode<T>* p, ListNode<T>* n) : item(obj), prev(p), next(n) {}
+
+template <typename T>
+ListNode<T>::~ListNode() {
+    if(next != nullptr) delete next;
+}
+
+template <typename T>
+T ListNode<T>::at(int i) const {
+    if(i == 1) return item;
+    else if(next != nullptr) return next->at(i - 1);
+    else throw(std::runtime_error("Invalid index for list access."));
+}
+
+template <typename T>
+ListNode<T>* ListNode<T>::head() {
+    return(prev == nullptr ? this : prev->head());
+}
+
+template <typename T>
+ListNode<T>* ListNode<T>::last() {
+    return(next == nullptr ? this : next->last());
+}
+
+template <typename T>
+ListNode<T>* ListNode<T>::kthUniqueItemPtr(int k) {
+    if(k == 1) return this;
+    else if(k > 1) {
+        return(next->kthUniqueItemPtr((prev == nullptr || prev->item != item) ? k - 1 : k));
+    }
+}
+
+template <typename T>
+ListNode<T>* ListNode<T>::inorderSuccessorPtr(const T& obj) {
+    if(item == obj) return next;
+    else return(next == nullptr ? nullptr : next->inorderSuccessorPtr(obj));
+}
 // template <typename T>
 // void Node<T>::traverseLeavesLevel(void (*eff)(const T&)) const {
 //     for(int i = 0; i <= height(); i++) {
@@ -249,4 +367,5 @@ void Node<T>::traverseLevel(void (*eff)(const T&)) const {
 //     }
 // }
 
+template class ListNode<int>;
 template class Node<int>;

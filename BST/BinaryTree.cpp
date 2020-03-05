@@ -99,9 +99,35 @@ void BinaryTree<T>::traverseLevel(void (*eff)(const T&)) const {
     if(!isEmpty()) root->traverseLevel(eff);
 }
 
+template <typename T>
+void BinaryTree<T>::traverseSpiralLevel(void (*eff)(const T&)) const {
+    if(!isEmpty()) root->traverseSpiralLevel(eff);
+}
+
 // template <typename T>
 // void BinaryTree<T>::traverseLeavesLevel(void (*eff)(const T&)) const {
 //     if(!isEmpty()) root->traverseLeavesLevel(eff);
 // }
+
+template <typename T>
+T BinaryTree<T>::inorderSuccessor(const T& obj) {
+    if(isEmpty()) throw(std::runtime_error("Empty tree cannot return element."));
+    try {
+        T succ = root->inorderSuccessor(obj);
+        return succ;
+    } catch(std::runtime_error& e) {
+        throw(e);
+    }
+}
+
+template <typename T>
+void BinaryTree<T>::traverseLeftSide(void (*eff)(const T&)) const {
+    if(!isEmpty()) root->traverseLeftSide();
+}
+
+template <typename T>
+void BinaryTree<T>::traverseRightSide(void (*eff)(const T&)) const {
+    if(!isEmpty()) root->traverseRightSide();
+}
 
 template class BinaryTree<int>;

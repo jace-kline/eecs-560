@@ -30,7 +30,11 @@ class BinaryTree {
         // void traversePostorder(void (*eff)(const T&)) const;
         void traverseInorder(void (*eff)(const T&)) const;
         void traverseLevel(void (*eff)(const T&)) const;
+        void traverseSpiralLevel(void (*eff)(const T&)) const;
+        void traverseLeftSide(void (*eff)(const T&)) const;
+        void traverseRightSide(void (*eff)(const T&)) const;
         // void traverseLeavesLevel(void (*eff)(const T&)) const;
+        T inorderSuccessor(const T& obj);
 };
 
 #endif
