@@ -110,8 +110,18 @@ void BinaryTree<T>::traverseSpiralLevel(void (*eff)(const T&)) const {
 // }
 
 template <typename T>
+void BinaryTree<T>::traverseLeftSide(void (*eff)(const T&)) const {
+    if(!isEmpty()) root->traverseLeftSide(eff);
+}
+
+template <typename T>
+void BinaryTree<T>::traverseRightSide(void (*eff)(const T&)) const {
+    if(!isEmpty()) root->traverseRightSide(eff);
+}
+
+template <typename T>
 T BinaryTree<T>::inorderSuccessor(const T& obj) {
-    if(isEmpty()) throw(std::runtime_error("Empty tree cannot return element."));
+    if(isEmpty()) throw(std::runtime_error("Empty tree cannot return any value."));
     try {
         T succ = root->inorderSuccessor(obj);
         return succ;
@@ -121,13 +131,14 @@ T BinaryTree<T>::inorderSuccessor(const T& obj) {
 }
 
 template <typename T>
-void BinaryTree<T>::traverseLeftSide(void (*eff)(const T&)) const {
-    if(!isEmpty()) root->traverseLeftSide();
-}
-
-template <typename T>
-void BinaryTree<T>::traverseRightSide(void (*eff)(const T&)) const {
-    if(!isEmpty()) root->traverseRightSide();
+T BinaryTree<T>::kthUniqueItem(int k) {
+    if(isEmpty()) throw(std::runtime_error("Empty tree cannot return any value."));
+    try {
+        T x = root->kthUniqueItem(k);
+        return x;
+    } catch(std::runtime_error& e) {
+        throw(e);
+    }
 }
 
 template class BinaryTree<int>;

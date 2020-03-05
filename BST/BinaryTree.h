@@ -35,6 +35,7 @@ class BinaryTree {
         void traverseRightSide(void (*eff)(const T&)) const;
         // void traverseLeavesLevel(void (*eff)(const T&)) const;
         T inorderSuccessor(const T& obj);
+        T kthUniqueItem(int k);
 };
 
 #endif

@@ -264,7 +264,7 @@ int Node<T>::traverseLeftSideHelp(void (*eff)(const T&), int t) const {
     else {
         int l = left == nullptr ? 0 : 1 + left->traverseLeftSideHelp(eff, t-1);
         int r = right == nullptr ? 0 : 1 + right->traverseLeftSideHelp(eff, l);
-        return(l > r ? l : r);
+        return(r > l ? r : l);
     }
 }
 
@@ -283,15 +283,15 @@ template <typename T>
 ListNode<T>* Node<T>::toInorderListHelper() const {
     if(isLeaf()) return(new ListNode<T>(item));
     else {
-        ListNode<T>* prev = left == nullptr ? nullptr : left->toInorderListHelper().last();
-        ListNode<T>* rest = right == nullptr ? nullptr : right->toInorderListHelper().head();
+        ListNode<T>* prev = left == nullptr ? nullptr : left->toInorderListHelper()->last();
+        ListNode<T>* rest = right == nullptr ? nullptr : right->toInorderListHelper()->head();
         return(new ListNode<T>(item, prev, rest));
     }
 }
 
 template <typename T>
 ListNode<T>* Node<T>::toInorderList() const {
-    return(toInorderListHelper().head());
+    return(toInorderListHelper()->head());
 }
 
 template <typename T>
@@ -307,7 +307,7 @@ T Node<T>::inorderSuccessor(const T& obj) {
 }
 
 template <typename T>
-T Node<T>::getKthUniqueItem(int k) const {
+T Node<T>::kthUniqueItem(int k) const {
     if(k < 1) throw(std::runtime_error("List index error. k-value too small."));
     ListNode<T>* l = toInorderList();
     ListNode<T>* p = l->kthUniqueItemPtr(k);
@@ -323,11 +323,16 @@ template <typename T>
 ListNode<T>::ListNode(const T& obj) : item(obj), prev(nullptr), next(nullptr) {}
 
 template <typename T>
-ListNode<T>::ListNode(const T& obj, ListNode<T>* p, ListNode<T>* n) : item(obj), prev(p), next(n) {}
+ListNode<T>::ListNode(const T& obj, ListNode<T>* p, ListNode<T>* n) : item(obj), prev(p), next(n) {
+    if(prev != nullptr) prev->next = this;
+}
 
 template <typename T>
 ListNode<T>::~ListNode() {
-    if(next != nullptr) delete next;
+    if(next != nullptr) {
+        next->prev = nullptr;
+        delete next;
+    }
 }
 
 template <typename T>
@@ -351,8 +356,9 @@ template <typename T>
 ListNode<T>* ListNode<T>::kthUniqueItemPtr(int k) {
     if(k == 1) return this;
     else if(k > 1) {
-        return(next->kthUniqueItemPtr((prev == nullptr || prev->item != item) ? k - 1 : k));
+        if(next != nullptr) return(next->kthUniqueItemPtr((prev == nullptr || prev->item != item) ? k - 1 : k));
     }
+    return nullptr;
 }
 
 template <typename T>

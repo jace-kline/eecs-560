@@ -75,7 +75,7 @@ class Node {
         void traverseRightSide(void (*eff)(const T&)) const;
         // void traverseLeavesLevel(void (*eff)(const T&)) const;
         T inorderSuccessor(const T& obj); // Call this from the root
-        T getKthUniqueItem(int k) const;
+        T kthUniqueItem(int k) const;
 };
 
 
