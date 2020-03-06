@@ -3,24 +3,6 @@
 
 #include <stdexcept>
 
-// Helper double-linked list class for inorder operations on BST Nodes
-template <typename T>
-class ListNode {
-    public:
-        T item;
-        ListNode<T>* prev;
-        ListNode<T>* next;
-        ListNode<T>(const T& obj);
-        ListNode<T>(const T& obj, ListNode<T>* p, ListNode<T>* n);
-        ~ListNode<T>();
-        T at(int i) const;
-        ListNode<T>* head();
-        ListNode<T>* last();
-        // Assumption that repeated elements are adjacent
-        ListNode<T>* kthUniqueItemPtr(int k);
-        ListNode<T>* inorderSuccessorPtr(const T& obj);
-};
-
 // Type T must have <, >, <=, >=, == operators defined
 template <typename T>
 class Node {
@@ -34,11 +16,7 @@ class Node {
         void doReverseLevel(void (*eff)(const T&), int level) const;
         int traverseLeftSideHelp(void (*eff)(const T&), int threshold) const;
         int traverseRightSideHelp(void (*eff)(const T&), int threshold) const;
-        // void doLevelIfLeaf(void (*eff)(const T&), int level) const;
         Node<T>* removeHelper(Node<T>* target);
-        ListNode<T>* inorderSuccessorHelp(const T& obj) const;
-        ListNode<T>* toInorderListHelper() const;
-        ListNode<T>* toInorderList() const;
 
     public:
         Node<T>(const T& obj);
@@ -56,27 +34,49 @@ class Node {
         bool add(const T& obj);
         bool remove(const T& obj);
 
-        // template <typename R>
-        // bool anyNodesSatisfy(bool (*p)(Node<T>*, R), R);
-        // bool contains(const T& obj) const;
-        // bool containsWithRelation(bool (*relation)(const T&, const T&));
-        // T popLastLeaf();
-        // void combine(Node<T>* other);
         void setItem(const T& obj);
         void setLeft(Node<T>* l);
         void setRight(Node<T>* r);
-        // Node<T>* rightmostLeaf();
-        // void traversePreorder(void (*eff)(const T&)) const;
-        // void traversePostorder(void (*eff)(const T&)) const;
         void traverseInorder(void (*eff)(const T&)) const;
         void traverseLevel(void (*eff)(const T&)) const;
         void traverseSpiralLevel(void (*eff)(const T&)) const;
         void traverseLeftSide(void (*eff)(const T&)) const;
         void traverseRightSide(void (*eff)(const T&)) const;
-        // void traverseLeavesLevel(void (*eff)(const T&)) const;
-        T inorderSuccessor(const T& obj); // Call this from the root
+        T inorderSuccessor(const T& obj) const;
         T kthUniqueItem(int k) const;
+
+        template <typename R>
+        R foldInorder(R (*f)(R, const T&), R) const;
 };
 
+template <typename T>
+class Maybe {
+    public:
+        bool exists;
+        T item;
+        Maybe();
+        Maybe(const T&);
+        ~Maybe();
+};
+
+template <typename T>
+struct inorder_struct {
+    T target_obj;
+    Maybe<T> succ;
+    bool is_found;
+};
+
+template <typename T>
+struct kth_struct {
+    int target_k;
+    int current_k;
+    Maybe<T> val;
+};
+
+template <typename T>
+inorder_struct<T> inorderSuccFoldFunc(inorder_struct<T> prev, const T& obj);
+
+template <typename T>
+kth_struct<T> kthItemFoldFunc(kth_struct<T> prev, const T& obj);
 
 #endif

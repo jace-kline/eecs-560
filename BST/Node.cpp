@@ -46,15 +46,6 @@ void Node<T>::doReverseLevel(void (*eff)(const T& obj), int level) const {
     }
 }
 
-// template <typename T>
-// void Node<T>::doLevelIfLeaf(void (*eff)(const T& obj), int level) const {
-//     if(level == 0 && isLeaf()) eff(item);
-//     else {
-//         if(left != nullptr) left->doLevel(eff, level - 1);
-//         if(right != nullptr) right->doLevel(eff, level - 1);
-//     }
-// }
-
 template <typename T>
 bool Node<T>::add(const T& obj) {
     if(obj < item) {
@@ -122,35 +113,6 @@ Node<T>* Node<T>::removeHelper(Node<T>* target) {
     return p;
 }
 
-
-// template <typename T>
-// template <typename R>
-// bool Node<T>::anyNodesSatisfy(bool (*p)(Node<T>*, R), R x) {
-//     return(p(this, x) ? true : (left == nullptr ? false : left->anyNodesSatisfy<std::string>(p, x)) || (right == nullptr ? false : right->anyNodesSatisfy<std::string>(p, x)));
-// }
-
-// template <typename T>
-// T Node<T>::popLastLeaf() {
-//     if(isLeaf()) throw(std::runtime_error("Error. Can't pop from context of a leaf node.\n"));
-//     int l_nodes = left == nullptr ? 0 : left->numNodes();
-//     int r_nodes = right == nullptr ? 0 : right->numNodes();
-//     if(r_nodes >= l_nodes) {
-//         if(r_nodes == 1) {
-//             T val = right->getItem();
-//             delete right;
-//             right = nullptr;
-//             return val;
-//         } else return(right->popLastLeaf());
-//     } else {
-//         if(l_nodes == 1) {
-//             T val = left->getItem();
-//             delete left;
-//             left = nullptr;
-//             return val;
-//         } else return(left->popLastLeaf());
-//     } 
-// }
-
 template <typename T>
 bool Node<T>::isLeaf() const {
     return (left == nullptr && right == nullptr);
@@ -211,20 +173,6 @@ void Node<T>::setRight(Node<T>* r) {
     right = r;
 }
 
-// template <typename T>
-// void Node<T>::traversePreorder(void (*eff)(const T&)) const {
-//     eff(item);
-//     if(left != nullptr) left->traversePreorder(eff);
-//     if(right != nullptr) right->traversePreorder(eff);
-// }
-
-// template <typename T>
-// void Node<T>::traversePostorder(void (*eff)(const T&)) const {
-//     if(left != nullptr) left->traversePostorder(eff);
-//     if(right != nullptr) right->traversePostorder(eff);
-//     eff(item);
-// }
-
 template <typename T>
 void Node<T>::traverseInorder(void (*eff)(const T&)) const {
     if(left != nullptr) left->traverseInorder(eff);
@@ -280,98 +228,71 @@ int Node<T>::traverseRightSideHelp(void (*eff)(const T&), int t) const {
 }
 
 template <typename T>
-ListNode<T>* Node<T>::toInorderListHelper() const {
-    if(isLeaf()) return(new ListNode<T>(item));
-    else {
-        ListNode<T>* prev = left == nullptr ? nullptr : left->toInorderListHelper()->last();
-        ListNode<T>* rest = right == nullptr ? nullptr : right->toInorderListHelper()->head();
-        return(new ListNode<T>(item, prev, rest));
-    }
-}
-
-template <typename T>
-ListNode<T>* Node<T>::toInorderList() const {
-    return(toInorderListHelper()->head());
-}
-
-template <typename T>
-T Node<T>::inorderSuccessor(const T& obj) {
-    ListNode<T>* l = toInorderList();
-    ListNode<T>* p = l->inorderSuccessorPtr(obj);
-    if(p == nullptr) throw(std::runtime_error("No successor to highest priority item."));
-    else {
-        T x = p->item;
-        delete l;
-        return x;
-    }
+T Node<T>::inorderSuccessor(const T& obj) const {
+    Maybe<T> m;
+    inorder_struct<T> init = inorder_struct<T> {obj, m, false};
+    inorder_struct<T> ret = foldInorder(inorderSuccFoldFunc, init);
+    if(!ret.is_found || !ret.succ.exists) throw(std::runtime_error("Given element was not found or has no successor."));
+    return(ret.succ.item);
 }
 
 template <typename T>
 T Node<T>::kthUniqueItem(int k) const {
     if(k < 1) throw(std::runtime_error("List index error. k-value too small."));
-    ListNode<T>* l = toInorderList();
-    ListNode<T>* p = l->kthUniqueItemPtr(k);
-    if(p == nullptr) throw(std::runtime_error("List index error. k-value too large."));
+    Maybe<T> m;
+    kth_struct<T> init = kth_struct<T> {k, 0, m};
+    kth_struct<T> ret = foldInorder(kthItemFoldFunc, init);
+    if(ret.target_k != ret.current_k) throw(std::runtime_error("List index error. k-value too large."));
+    return(ret.val.item);
+}
+
+template <typename T>
+template <typename R>
+R Node<T>::foldInorder(R (*f)(R, const T&), R i) const {
+    R left_return = left == nullptr ? i : left->foldInorder(f, i);
+    R node_result = f(left_return, item);
+    return(right == nullptr ? node_result : right->foldInorder(f, node_result));
+}
+
+template <typename T>
+inorder_struct<T> inorderSuccFoldFunc(inorder_struct<T> prev, const T& obj) {
+    if(prev.is_found) {
+        if(prev.succ.exists) return prev;
+        else {
+            Maybe<T> m = Maybe<T>(obj);
+            return(inorder_struct<T> {prev.target_obj, m, true});
+        }
+    } else if(obj == prev.target_obj) {
+        Maybe<T> m;
+        return(inorder_struct<T> {prev.target_obj, m, true});
+    }
+    return(prev);
+}
+
+template <typename T>
+kth_struct<T> kthItemFoldFunc(kth_struct<T> prev, const T& obj){
+    if(prev.target_k == prev.current_k) return prev;
     else {
-        T x = p->item;
-        delete l;
-        return x;
+        int new_k = prev.val.item == obj ? prev.current_k : prev.current_k + 1;
+        return(kth_struct<T> {prev.target_k, new_k, obj});
     }
 }
 
 template <typename T>
-ListNode<T>::ListNode(const T& obj) : item(obj), prev(nullptr), next(nullptr) {}
-
-template <typename T>
-ListNode<T>::ListNode(const T& obj, ListNode<T>* p, ListNode<T>* n) : item(obj), prev(p), next(n) {
-    if(prev != nullptr) prev->next = this;
+Maybe<T>::Maybe() {
+    exists = false;
 }
 
 template <typename T>
-ListNode<T>::~ListNode() {
-    if(next != nullptr) {
-        next->prev = nullptr;
-        delete next;
-    }
+Maybe<T>::Maybe(const T& obj) {
+    exists = true;
+    item = obj;
 }
 
 template <typename T>
-T ListNode<T>::at(int i) const {
-    if(i == 1) return item;
-    else if(next != nullptr) return next->at(i - 1);
-    else throw(std::runtime_error("Invalid index for list access."));
-}
+Maybe<T>::~Maybe() {}
 
-template <typename T>
-ListNode<T>* ListNode<T>::head() {
-    return(prev == nullptr ? this : prev->head());
-}
-
-template <typename T>
-ListNode<T>* ListNode<T>::last() {
-    return(next == nullptr ? this : next->last());
-}
-
-template <typename T>
-ListNode<T>* ListNode<T>::kthUniqueItemPtr(int k) {
-    if(k == 1) return this;
-    else if(k > 1) {
-        if(next != nullptr) return(next->kthUniqueItemPtr((prev == nullptr || prev->item != item) ? k - 1 : k));
-    }
-    return nullptr;
-}
-
-template <typename T>
-ListNode<T>* ListNode<T>::inorderSuccessorPtr(const T& obj) {
-    if(item == obj) return next;
-    else return(next == nullptr ? nullptr : next->inorderSuccessorPtr(obj));
-}
-// template <typename T>
-// void Node<T>::traverseLeavesLevel(void (*eff)(const T&)) const {
-//     for(int i = 0; i <= height(); i++) {
-//         doLevelIfLeaf(eff, i);
-//     }
-// }
-
-template class ListNode<int>;
 template class Node<int>;
+template class Maybe<int>;
+template struct inorder_struct<int>;
+template struct kth_struct<int>;
