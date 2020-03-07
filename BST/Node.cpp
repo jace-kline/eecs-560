@@ -210,9 +210,9 @@ int Node<T>::traverseLeftSideHelp(void (*eff)(const T&), int t) const {
     if(t <= 0) eff(item);
     if(isLeaf()) return 1;
     else {
-        int l = left == nullptr ? 0 : 1 + left->traverseLeftSideHelp(eff, t-1);
-        int r = right == nullptr ? 0 : 1 + right->traverseLeftSideHelp(eff, l);
-        return(r > l ? r : l);
+        int l = left == nullptr ? 0 : left->traverseLeftSideHelp(eff, t-1);
+        int r = right == nullptr ? 0 : right->traverseLeftSideHelp(eff, (l > t - 1 ? l : t - 1));
+        return(1 + (r > l ? r : l));
     }
 }
 
@@ -221,9 +221,9 @@ int Node<T>::traverseRightSideHelp(void (*eff)(const T&), int t) const {
     if(t <= 0) eff(item);
     if(isLeaf()) return 1;
     else {
-        int r = right == nullptr ? 0 : 1 + right->traverseRightSideHelp(eff, t-1);
-        int l = left == nullptr ? 0 : 1 + left->traverseRightSideHelp(eff, r);
-        return(l > r ? l : r);
+        int r = right == nullptr ? 0 : right->traverseRightSideHelp(eff, t-1);
+        int l = left == nullptr ? 0 : left->traverseRightSideHelp(eff, (r > t - 1 ? r : t - 1));
+        return(1 + (l > r ? l : r));
     }
 }
 
