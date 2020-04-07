@@ -34,7 +34,7 @@ bool Heap<T>::is_empty(int i) const  {
 
 template <typename T>
 bool Heap<T>::is_leaf(int i) const {
-    return(jth_child(i, 0) >= n);
+    return(jth_child(i, 1) >= n);
 }
 
 template <typename T>
@@ -44,7 +44,7 @@ bool Heap<T>::is_root(int i) const {
 
 template <typename T>
 int Heap<T>::jth_child(int i, int j) const {
-    if(j < 0 || j >= k) return -1;
+    if(j < 1 || j > k) return -1;
     return(k * i + j);
 }
 
@@ -57,7 +57,8 @@ template <typename T>
 int Heap<T>::favorable_child(int i) const {
     if(is_empty(i) || is_leaf(i)) return -1;
     int candidate = -1;
-    for(int j = 0; j < k; j++) {
+    for(int j = 1; j <= k; j++) {
+        if(candidate == -1) candidate = (jth_child(i, j) != -1 ? j : -1);
         if(compare(jth_child(i, j), jth_child(i, candidate))) candidate = j;
     }
     return candidate;
@@ -67,20 +68,20 @@ template <typename T>
 int Heap<T>::switcher_child(int i) const {
     if(is_empty(i) || is_leaf(i)) return -1;
     int candidate = favorable_child(i);
-    return compare_child(i, candidate) ? candidate : -1;
+    return !compare_child(i, candidate) ? candidate : -1;
 }
 
 template <typename T>
 bool Heap<T>::compare(int i1, int i2) const {
-    if(is_empty(i1)) return false;
     if(is_empty(i2)) return true;
+    if(is_empty(i1)) return false;
     if(type == MIN) return arr[i1] <= arr[i2];
     else return arr[i1] >= arr[i2];
 }
 
 template <typename T>
 bool Heap<T>::compare_child(int i, int j) const {
-    if(is_empty(i) || is_empty(jth_child(i, j)) return true;
+    if(is_empty(i) || is_empty(jth_child(i, j))) return true;
     if(type == MIN) return arr[i] <= arr[jth_child(i, j)];
     else return arr[i] >= arr[jth_child(i, j)];
 }
@@ -104,10 +105,12 @@ void Heap<T>::percolate_down(int i) {
 
 template <typename T>
 void Heap<T>::percolate_up(int i) {
+    if(is_empty(i)) return;
+    std::cout << "percolate up at i = " << i << ". Value = " << arr[i].priority << '\n';
+    std::cout << "parent value = " << (!is_empty(parent(i)) ? arr[parent(i)].priority : -1) << '\n';
     if(!compare_parent(i)) {
         swap(i, parent(i));
         percolate_up(parent(i));
-        return true;
     }
 }
 
@@ -115,7 +118,7 @@ template <typename T>
 int Heap<T>::fill_recursive(int i) {
     if(is_empty(i)) return -1; // error
     if(is_leaf(i)) return i; // base case
-    int fill_index = child(i, favorable_child(i));
+    int fill_index = jth_child(i, favorable_child(i));
     if(fill_index == -1) return -1;
     arr[i] = arr[fill_index]; // fill the empty space
     return(fill_recursive(fill_index));
@@ -127,6 +130,56 @@ bool Heap<T>::is_duplicate(const T& obj) {
         if(obj == arr[i]) return true;
     }
     return false;
+}
+
+template <typename T>
+T Heap<T>::itemAtSorted(int r) {
+    if(r < 0 || r >= n) throw(std::runtime_error("Invalid array index."));
+    T a[n];
+
+    // copy arr values
+    for(int i = 0; i < n; i++) {
+        a[i] = arr[i];
+    }
+
+    // sort
+    for(int j = 0; j < n - 1; j++) {
+        for(int i = 0; i < n-j-1; i++) {
+            if(type == MIN ? a[i] > a[i+1] : a[i] < a[i+1]) {
+                T tmp = a[i];
+                a[i] = a[i+1];
+                a[i+1] = tmp;
+            } 
+        }
+    }
+    return a[r];
+}
+
+template <typename T>
+int Heap<T>::tokenOfSorted(const T& obj) {
+    T a[n];
+
+    // copy arr values
+    for(int i = 0; i < n; i++) {
+        a[i] = arr[i];
+    }
+
+    // sort
+    for(int j = 0; j < n - 1; j++) {
+        for(int i = 0; i < n-j-1; i++) {
+            if(type == MIN ? a[i] > a[i+1] : a[i] < a[i+1]) {
+                T tmp = a[i];
+                a[i] = a[i+1];
+                a[i+1] = tmp;
+            } 
+        }
+    }
+
+    // find element (or -1 if not found)
+    for(int i = 0; i < n; i++) {
+        if(a[i] == obj) return(i + 1);
+    }
+    return(-1);
 }
 
 template <typename T>
@@ -142,12 +195,22 @@ int Heap<T>::size() const {
 template <typename T>
 bool Heap<T>::insert(const T& obj) {
     if(!is_duplicate(obj)) {
-        arr[next_index()] = obj;
         n++;
-        percolate_up(next_index());
+        arr[n-1] = obj;
+        percolate_up(n-1);
         return true;
     }
     return false;
+}
+
+template <typename T>
+bool Heap<T>::addNoHeapify(const T& obj) {
+    if(is_duplicate(obj)) return false;
+    else {
+        arr[n] = obj;
+        n++;
+    }
+    return true;
 }
 
 template <typename T>
@@ -175,9 +238,21 @@ int Heap<T>::tokenOf(const T& obj) {
 }
 
 template <typename T>
+T Heap<T>::itemAt(int i) {
+    if(is_empty(i)) throw(std::runtime_error("Invalid array index access."));
+    return(arr[i]);
+}
+
+template <typename T>
 T Heap<T>::peekFront() const {
     if(isEmpty()) throw(std::runtime_error("Attempted to peek an empty heap."));
     return(arr[0]);
+}
+
+template <typename T>
+T Heap<T>::peekLast() const {
+    if(isEmpty()) throw(std::runtime_error("Attempted to peek an empty heap."));
+    return(arr[n-1]);
 }
 
 template <typename T>
@@ -200,17 +275,12 @@ T Heap<T>::popFront() {
 }
 
 template <typename T>
-bool Heap<T>::constructBottomUp(T* array, int numitems) {
-    // Copy initial array values
-    n = numitems;
-    for(int i = 0; i < n; i++) {
-        arr[i] = array[i];
-    }
-
+void Heap<T>::constructBottomUp() {
     // Loop through in reverse-level order from right to left
     // and percolate down
     for(int i = n - 1; i >= 0; i--) {
         percolate_down(i);
     }
-
 }
+
+template class Heap<Record>;

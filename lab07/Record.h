@@ -3,8 +3,8 @@
 
 #include <string>
 
-typedef Record Doctor;
-typedef Record Patient;
+enum RecordType {PATIENT, DOCTOR};
+enum KeyOption {NOKEY, KEY};
 
 struct Record {
     std::string first_name;
@@ -13,6 +13,9 @@ struct Record {
 
     Record operator=(const Record& r);
 };
+
+typedef Record Doctor;
+typedef Record Patient;
 
 // Checks equality on the person's names
 // Is this actually the same person?
@@ -23,7 +26,5 @@ bool operator<=(const Record& r1, const Record& r2);
 bool operator>=(const Record& r1, const Record& r2);
 bool operator<(const Record& r1, const Record& r2);
 bool operator>(const Record& r1, const Record& r2);
-
-
 
 #endif

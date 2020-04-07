@@ -1,6 +1,11 @@
 #ifndef HEAP_H
 #define HEAP_H
 
+#include <cmath>
+#include <stdexcept>
+#include <iostream>
+#include "Record.h"
+
 enum HeapType {MIN, MAX};
 
 template <typename T>
@@ -77,25 +82,38 @@ class Heap {
         // object already in the heap
         bool is_duplicate(const T& obj);
 
+        // Creates a (copied) ordered array from the member 
+        // array's elements
+        // This is a simple bubble sort
+        // Be sure to delete it elsewhere
+        T* sort_arr();
+
     public:
         Heap<T>(HeapType t, int num_children, int max_objects);
         ~Heap<T>();
         bool isEmpty() const;
         int size() const;
         bool insert(const T& obj);
+
+        // used in bottom-up approach to add objects first
+        bool addNoHeapify(const T& obj);
         bool deleteItem(const T& obj);
 
         // What position in line is this object?
         // == arr index + 1
+        // otherwise -1
         int tokenOf(const T& obj);
+        T itemAt(int i); // get item at array index
+        int tokenOfSorted(const T& obj);
+        T itemAtSorted(int i); // get item at sorted array index
 
         T peekFront() const;
+        T peekLast() const;
         bool deleteFront();
         T popFront();
 
-        // Given an array of elements and the number of items,
-        // construct heap using bottom-up approach
-        bool constructBottomUp(T* array, int numitems);
+        // heapify using bottom-up approach
+        void constructBottomUp();
 };
 
 #endif

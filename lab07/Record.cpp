@@ -4,6 +4,7 @@ Record Record::operator=(const Record& r) {
     first_name = r.first_name;
     last_name = r.last_name;
     priority = r.priority;
+    return *this;
 }
 
 bool operator==(const Record& r1, const Record& r2) {
