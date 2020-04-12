@@ -71,7 +71,9 @@ void DoctorManager::checkAvailability() {
     int index = heap.tokenOf(d) - 1;
     if(index < 0) std::cout << "Doctor record not found.\n";
     else if(d.priority >= 22) std::cout << "This doctor is not available.\n";
-    else std::cout << "This doctor is available. They are currently serving " << d.priority << " patients.\n";
+    else {
+        std::cout << "This doctor is available. They are currently serving " << heap.itemAt(index).priority << " patients.\n";
+    }
 }
 
 void DoctorManager::numDoctors() {

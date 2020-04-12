@@ -106,8 +106,6 @@ void Heap<T>::percolate_down(int i) {
 template <typename T>
 void Heap<T>::percolate_up(int i) {
     if(is_empty(i)) return;
-    std::cout << "percolate up at i = " << i << ". Value = " << arr[i].priority << '\n';
-    std::cout << "parent value = " << (!is_empty(parent(i)) ? arr[parent(i)].priority : -1) << '\n';
     if(!compare_parent(i)) {
         swap(i, parent(i));
         percolate_up(parent(i));

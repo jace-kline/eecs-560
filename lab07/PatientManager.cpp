@@ -78,7 +78,7 @@ void PatientManager::patientToken() {
     Patient p = promptRecord(PATIENT, NOKEY);
     int token = heap.tokenOfSorted(p);
     if(token == -1) std::cout << "No record found with the given informatation.\n";
-    else std::cout << "This patient has " << token << " priority rank in the queue.\n";
+    else std::cout << "This patient has priority rank " << token << " in the queue.\n";
 }
 
 void PatientManager::patientCount() {

@@ -4,7 +4,6 @@
 #include "Heap.h"
 #include "Record.h"
 #include "IO.h"
-#include <iostream>
 #include <fstream>
 
 class PatientManager {
