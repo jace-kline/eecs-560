@@ -69,7 +69,7 @@ int main() {
                 break;
             }
             case 8: std::cout << "Exiting program.\n"; break;
-            case 9: h.traverseAll(printDownloadFunc); break;
+            // case 9: h.traverseAll(printDownloadFunc); break;
             default:
                 std::cout << "Invalid menu number. Please try again.\n";
                 break;

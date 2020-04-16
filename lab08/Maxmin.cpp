@@ -23,12 +23,11 @@ template <typename T>
 bool Heap<T>::compare(int i, int j) const {
     if(is_invalid(i) || is_invalid(j) || level(i) != level(j)) return false;
     else {
-        bool ret = false;
         LevelType t = level_type(i);
-        if(t == MIN) ret = arr[i] < arr[j];
-        else ret = arr[i] > arr[j];
-        return ret;
+        if(t == MIN) return arr[i] < arr[j];
+        else if (t == MAX) return arr[i] > arr[j];
     }
+    return false;
 }
 
 template <typename T>
@@ -45,6 +44,18 @@ template <typename T>
 int Heap<T>::grandparent(int i) const {
     if(is_root(i) || is_root(parent(i))) return -1;
     else return parent(parent(i));
+}
+
+template <typename T>
+int Heap<T>::min_index_grandchild(int i) const {
+    int x = jth_child(jth_child(i,1),1);
+    return (is_invalid(x) ? -1 : x);
+}
+
+template <typename T>
+int Heap<T>::max_index_grandchild(int i) const {
+    int x = jth_child(jth_child(i,k),k);
+    return (!is_invalid(x) ? x : (min_index_grandchild(i) != -1 ? n - 1 : -1));
 }
 
 template <typename T>
@@ -120,20 +131,15 @@ int Heap<T>::swapper_child(int i) const {
 
 template <typename T>
 int Heap<T>::swapper_grandchild(int i) const {
+    int min = min_index_grandchild(i);
+    int max = max_index_grandchild(i);
+    if(min == -1) return -1;
     int best_gc = -1;
-    for(int j = 1; j <= k; j++) {
-        int the_child = jth_child(i, j);
-        if(is_invalid(the_child)) break;
-
-        for(int j2 = 1; j2 <= k; j2++) {
-            int the_gc = jth_child(the_child, j2);
-            if(is_invalid(the_gc)) break;
-            else {
-                if((level_type(i) == MIN && arr[the_gc] < arr[i]) ||
-                   (level_type(i) == MAX && arr[the_gc] > arr[i])) {
-                   if(best_gc == -1 || compare(the_gc, best_gc)) best_gc = the_gc;
-               }
-            }
+    for(int j = min; j <= max; j++) {
+        if(is_invalid(j)) break;
+        if((level_type(i) == MIN && arr[j] < arr[i]) ||
+            (level_type(i) == MAX && arr[j] > arr[i])) {
+            if(best_gc == -1 || compare(j, best_gc)) best_gc = j;
         }
     }
     return best_gc;

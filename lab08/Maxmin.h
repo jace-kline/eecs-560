@@ -24,6 +24,8 @@ class Heap {
         int jth_child(int i, int j) const;
         int parent(int i) const;
         int grandparent(int i) const;
+        int min_index_grandchild(int i) const;
+        int max_index_grandchild(int i) const;
 
         LevelType level_type(int i) const;
         int level(int i) const;
