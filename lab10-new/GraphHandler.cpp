@@ -1,6 +1,8 @@
 #include "GraphHandler.h"
 
-GraphHandler::GraphHandler() : islands(nullptr), g(0, nullptr) {}
+GraphHandler::GraphHandler() {
+    islands = nullptr;
+}
 
 GraphHandler::~GraphHandler() {
     if(islands != nullptr) {
@@ -9,63 +11,42 @@ GraphHandler::~GraphHandler() {
     }
 }
 
-// void GraphHandler::clear() {
-//     if(islands != nullptr) {
-//         delete[] islands;
-//         islands = nullptr;
-//     }
-//     // if(g.a != nullptr) {
-//     //     for(int i = 0; i < g.n; i++) {
-//     //         delete[] g.a[i];
-//     //         g.a[i] = nullptr;
-//     //     }
-//     //     delete[] g.a;
-//     //     g.a = nullptr;
-//     // }
-//     // g.n = 0;
-// }
-
 void GraphHandler::loadFromFile(std::string filename) {
     std::string ln;
     std::ifstream fs;
+    int n = 0;
 
     // open file and count the number of lines until the "n, <...>" line
     fs.open(filename);
     if(!fs.is_open()) std::cout << "Could not open data file.\n";
     while(std::getline(fs, ln)) {
         if(ln.substr(0,2) == "n," || ln.substr(0,3) == "n ,") break;
-        else g.n++;
+        else n++;
     }
     fs.close();
 
-    // Create the member arrays dynamically
-    islands = new Island[g.n];
-
-    g.a = new int*[g.n];
-    for(int i = 0; i < g.n; i++) {
-        g.a[i] = new int[g.n];
-        for(int j = 0; j < g.n; j++) g.a[i][j] = -1;
-    }
+    // Create the member vars dynamically
+    islands = new Island[n];
+    g.n = n;
+    g.arr = new List<AdjEntry>[n];
 
     // Reopen the file
     fs.open(filename);
 
     // Read and store the islands
-    for(int i = 0; i < g.n; i++) {
+    for(int i = 0; i < n; i++) {
         if(std::getline(fs, ln)) islands[i] = parseIsland(ln);
     }
 
     // Trash the line with "n,<#islands>"
     std::getline(fs, ln);
 
-    // Read and store values into the weight matrix
-    int t;
-    for(int i = 0; i < g.n; i++) {
-        for(int j = 0; j < g.n; j++) {
-            fs >> t;
-            // std::cout << "a[" << i << "][" << j << "] = " << t << '\n';
-            if(i == j) g.a[i][j] = 0;
-            else g.a[i][j] = t;
+    // Read and store values into the adjacency matrix
+    int w;
+    for(int i = 0; i < n; i++) {
+        for(int j = 0; j < n; j++) {
+            fs >> w;
+            if(j > i && w > 1) g.add(i, j, w);
         }
     }
     fs.close();
@@ -89,19 +70,19 @@ Island parseIsland(std::string line) {
 }
 
 void GraphHandler::search(bool mode) {
-    SearchReturn sr;
-    if(mode) sr = g.dfs();
-    else sr = g.bfs();
+    SearchReturn sr = SearchReturn();
+    if(mode) g.dfs(sr);
+    else g.bfs(sr);
 
     std::cout << "Tree Edges: ";
-    for(int i = 0; i < sr.tree_edges.size(); i++) {
-        WEdge e = sr.tree_edges.at(i);
+    for(int i = 1; i <= sr.tree_edges.getLength(); i++) {
+        WEdge e = sr.tree_edges.getEntry(i);
         std::cout << '(' << islands[e.i].name << ", " << islands[e.j].name << ") ";
     }
 
     std::cout << '\n' << (mode ? "Back" : "Cross") << " Edges: ";
-    for(int i = 0; i < sr.nontree_edges.size(); i++) {
-        WEdge e = sr.nontree_edges.at(i);
+    for(int i = 1; i <= sr.nontree_edges.getLength(); i++) {
+        WEdge e = sr.nontree_edges.getEntry(i);
         std::cout << '(' << islands[e.i].name << ", " << islands[e.j].name << ") ";
     }
     std::cout << '\n';
@@ -116,13 +97,15 @@ void GraphHandler::dfs() {
 }
 
 void GraphHandler::mst(bool mode) {
-    std::vector<WEdge> edges = mode ? g.primMST() : g.kruskalMST();
-    if(edges.empty()) {
+    MSTReturn ret = MSTReturn();
+    if(mode) g.primMST(ret);
+    else g.kruskalMST(ret);
+    if(!ret.solution) {
         std::cout << "No MST could be constructed for the given graph.\n";
     } else {
         int len = 0;
-        for(int i = 0; i < edges.size(); i++) {
-            WEdge e = edges.at(i);
+        for(int i = 1; i <= ret.edges.getLength(); i++) {
+            WEdge e = ret.edges.getEntry(i);
             len += e.weight;
             std::cout << '(' << islands[e.i].name << ", " << islands[e.j].name << "){" << e.weight << "} ";
         }

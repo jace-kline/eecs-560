@@ -15,7 +15,7 @@ class GraphHandler
 {
     private:
         Island *islands; // array of islands
-        WGraph g;
+        AdjList g;
 
     protected:
         // void clear();
